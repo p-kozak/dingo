@@ -11,92 +11,10 @@ class MainWindow(QMainWindow):
 		self.setMinimumSize(800,480)
 		self.setWindowTitle("Dingo is amazing")
 		
-		#test code just to put something on the grid
-		mainWidget = QWidget()
-		mainLayout = QHBoxLayout()
-		mainWidget.setLayout(mainLayout)
-		self.setCentralWidget(mainWidget)
-
-		#Layout and widget for the left part of the GUI - buttons
-		gridWidget = QWidget()
-		gridWidget.setMinimumSize(280,480)
-		gridLayout = QGridLayout()
-		gridWidget.setLayout(gridLayout)
-		mainLayout.addWidget(gridWidget)
-
-
-
-		#Prototype layout and widget for the right part of the GUI- display
-		horWidget = QWidget()
-		horWidget.setMinimumSize(520,480)
-		horLayout = QVBoxLayout()
-		horWidget.setLayout(horLayout)
-		mainLayout.addWidget(horWidget)
-
+		#initialise widgets and threads
+		self.displayWidgets()
+		self.setUpThreads()
 		
-
-		#Buttons for the left part of the layout
-
-		button = QPushButton("Toggle laser")
-		gridLayout.addWidget(button,0,0)
-
-		button = QPushButton("Bluetooth Connect")
-		gridLayout.addWidget(button,0,2)
-
-		#Boxes for displaying last measured distance and angle. Blocked, will be updated by later functions
-
-		self.boxDistance = QLineEdit("Last distance:")
-		self.boxDistance.setReadOnly(True)
-		gridLayout.addWidget(self.boxDistance,2,0)
-
-		self.boxAngle = QLineEdit("Angle: 34.3")
-		self.boxAngle.setReadOnly(True)
-		gridLayout.addWidget(self.boxAngle,2,2)
-
-		self.boxPointToPoint = QLineEdit("P2P: 13.4m")
-		self.boxPointToPoint.setReadOnly(True)
-		gridLayout.addWidget(self.boxPointToPoint,2,1)
-
-		#Push Buttons For moving right, left and taking measurement
-
-		buttonLeft = QPushButton("<<<")
-		gridLayout.addWidget(buttonLeft,3,0)
-
-
-		buttonMeasure = QPushButton("Measure")
-		gridLayout.addWidget(buttonMeasure,3,1)
-
-
-		buttonRight = QPushButton(">>>")
-		gridLayout.addWidget(buttonRight,3,2)
-
-
-		#Buttons for setting angle to relative 0 and displaying distance p2p
-
-		buttonSetRelativeZero = QPushButton("Set angle 0")
-		gridLayout.addWidget(buttonSetRelativeZero,4,0)
-
-		buttonPointToPoint = QPushButton("Point to point")
-		gridLayout.addWidget(buttonPointToPoint,4,2)
-
-
-
-
-
-		#Set up threads. Initialise objects and move them to threads
-		self.controlThread = QThread()
-		self.commsThread = QThread()
-
-		controlThreadObject = Control()
-		commsThreadObject = Comms()
-
-		controlThreadObject.moveToThread(self.controlThread)
-		commsThreadObject.moveToThread(self.commsThread)
-		
-		self.controlThread.start()
-		self.commsThread.start()
-
-
 		self.show()
 
 
@@ -110,37 +28,124 @@ class MainWindow(QMainWindow):
 		self.controlThread.wait()
 
 
+	def setUpThreads(self):
+		#Set up threads. Initialise objects and move them to threads
+		self.controlThread = QThread()
+		self.commsThread = QThread()
 
-	def buttonMeasureClicked():
+		self.controlThreadObject = Control()
+		self.commsThreadObject = Comms()
+
+		self.controlThreadObject.moveToThread(self.controlThread)
+		self.commsThreadObject.moveToThread(self.commsThread)
+		
+		self.controlThread.start()
+		self.commsThread.start()
+
+		return 
+
+
+
+	def displayWidgets(self):
+
+		mainWidget = QWidget()
+		mainLayout = QHBoxLayout()
+		mainWidget.setLayout(mainLayout)
+		self.setCentralWidget(mainWidget)
+
+		#Layout and widget for the left part of the GUI - buttons
+		gridWidget = QWidget()
+		gridWidget.setMinimumSize(280,480)
+		self.controlLayout = QGridLayout()
+		gridWidget.setLayout(self.controlLayout)
+		mainLayout.addWidget(gridWidget)
+
+
+
+		#Prototype layout and widget for the right part of the GUI- display
+		horWidget = QWidget()
+		horWidget.setMinimumSize(520,480)
+		self.displayLayout = QVBoxLayout()
+		horWidget.setLayout(self.displayLayout)
+		mainLayout.addWidget(horWidget)
+
+		
+
+		#Buttons for the left part of the layout
+
+		button = QPushButton("Toggle laser")
+		self.controlLayout.addWidget(button,0,0)
+
+		button = QPushButton("Bluetooth Connect")
+		self.controlLayout.addWidget(button,0,2)
+
+		#Boxes for displaying last measured distance and angle. Blocked, will be updated by later functions
+
+		self.boxDistance = QLineEdit("Last distance: 4.2m")
+		self.boxDistance.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxDistance,2,0)
+
+		self.boxAngle = QLineEdit("Angle: 34.3")
+		self.boxAngle.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxAngle,2,2)
+
+		self.boxPointToPoint = QLineEdit("P2P: 13.4m")
+		self.boxPointToPoint.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxPointToPoint,2,1)
+
+		#Push Buttons For moving right, left and taking measurement
+
+		buttonLeft = QPushButton("<<<")
+		self.controlLayout.addWidget(buttonLeft,3,0)
+
+
+		buttonMeasure = QPushButton("Measure")
+		self.controlLayout.addWidget(buttonMeasure,3,1)
+
+
+		buttonRight = QPushButton(">>>")
+		self.controlLayout.addWidget(buttonRight,3,2)
+
+
+		#Buttons for setting angle to relative 0 and displaying distance p2p
+
+		buttonSetRelativeZero = QPushButton("Set angle 0")
+		self.controlLayout.addWidget(buttonSetRelativeZero,4,0)
+
+		buttonPointToPoint = QPushButton("Point to point")
+		self.controlLayout.addWidget(buttonPointToPoint,4,2)
+
+		return
+
+
+	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
 		return
 
-	def buttonSetRelativeAngleToZeroClicked():
+	def buttonSetRelativeAngleToZeroClicked(self):
 		#Slot which set  relative angle to zero degrees. Useful for calibration
 		return
 
 
-	def buttonMoveRightPressed():
+	def buttonMoveRightPressed(self):
 		#Slot  
 		return
 
-	def buttonMoveRightReleased():
+	def buttonMoveRightReleased(self):
 		#Slot
 		return
 
-	def buttonMoveLeftPressed():
+	def buttonMoveLeftPressed(self):
 		#Slot  
 		return
 
-	def buttonMoveLeftReleased():
+	def buttonMoveLeftReleased(self):
 		#Slot
 		return
 
-	def getDistanceBetweenTwoLastPointsPressed():
+	def getDistanceBetweenTwoLastPointsPressed(self):
 		#Slot. Uses two last measurements and returns distance between these points  
 		return
-
-
 
 
 
