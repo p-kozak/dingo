@@ -1,0 +1,341 @@
+from gui import MainWindow
+from PyQt5.QtWidgets import *
+import sys
+
+if __name__ == '__main__':
+	app = QApplication(sys.argv)
+	window = MainWindow()
+	sys.exit(app.exec_())
+
+	
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QThread, qDebug, pyqtSignal
+from Control import *
+from comms import Comms
+
+
+
+
+class MainWindow(QMainWindow):
+
+	#Signals which go to control. They have to be declared here due to limitations of the PyQt5
+	#https://stackoverflow.com/questions/2970312/pyqt4-qtcore-pyqtsignal-object-has-no-attribute-connect
+	#well explained in the link above
+	toggleLaserSignal = pyqtSignal()
+	moveRightStartSignal = pyqtSignal()
+	moveRightStopSignal = pyqtSignal()
+	moveLeftStartSignal = pyqtSignal()
+	moveLeftStopSignal = pyqtSignal()
+	measureDistanceSignal = pyqtSignal()
+	setAngleToZeroSignal = pyqtSignal()
+	calculateWidthSignal = pyqtSignal()
+
+
+	def __init__(self, parent = None):
+		QMainWindow.__init__(self)
+		#Set the properties of the window
+		self.setMinimumSize(800,480)
+		self.setWindowTitle("Dingo is amazing")
+		
+		#initialise widgets and threads
+		self.displayWidgets()
+		self.setUpThreads()
+		self.defineSignals()
+		
+		self.show()
+
+
+
+
+	def __del__(self):
+		#Destructor. Initialise closing the thread, wait for it to finish, continue
+		self.controlThread.quit()
+		self.controlThread.wait()
+		self.commsThread.quit()
+		self.controlThread.wait()
+
+
+	def setUpThreads(self):
+		#Set up threads. Initialise objects and move them to threads
+		self.controlThread = QThread()
+		self.commsThread = QThread()
+
+		self.controlThreadObject = Control()
+		self.commsThreadObject = Comms()
+
+		self.controlThreadObject.moveToThread(self.controlThread)
+		self.commsThreadObject.moveToThread(self.commsThread)
+		
+		self.controlThread.start()
+		self.commsThread.start()
+
+		return 
+
+
+
+	def displayWidgets(self):
+
+		mainWidget = QWidget()
+		mainLayout = QHBoxLayout()
+		mainWidget.setLayout(mainLayout)
+		self.setCentralWidget(mainWidget)
+
+		#Layout and widget for the left part of the GUI - buttons
+		gridWidget = QWidget()
+		gridWidget.setMinimumSize(280,480)
+		self.controlLayout = QGridLayout()
+		gridWidget.setLayout(self.controlLayout)
+		mainLayout.addWidget(gridWidget)
+
+
+
+		#Prototype layout and widget for the right part of the GUI- display
+		horWidget = QWidget()
+		horWidget.setMinimumSize(520,480)
+		self.displayLayout = QVBoxLayout()
+		horWidget.setLayout(self.displayLayout)
+		mainLayout.addWidget(horWidget)
+
+		
+
+		#Buttons for the left part of the layout
+
+		button = QPushButton("Toggle laser")
+		button.clicked.connect(self.buttonToggleLaserClicked)
+		self.controlLayout.addWidget(button,0,0)
+
+		button = QPushButton("Bluetooth Connect")
+		self.controlLayout.addWidget(button,0,2)
+
+		#Boxes for displaying last measured distance and angle. Blocked, will be updated by later functions
+
+		self.boxDistance = QLineEdit("Last distance: 4.2m")
+		self.boxDistance.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxDistance,2,0)
+
+		self.boxAngle = QLineEdit("Angle: 34.3")
+		self.boxAngle.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxAngle,2,2)
+
+		self.boxPointToPoint = QLineEdit("P2P: 13.4m")
+		self.boxPointToPoint.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxPointToPoint,2,1)
+
+		#Push Buttons For moving right, left and taking measurement
+
+		buttonLeft = QPushButton("<<<")
+		self.controlLayout.addWidget(buttonLeft,3,0)
+
+
+		buttonMeasure = QPushButton("Measure")
+		self.controlLayout.addWidget(buttonMeasure,3,1)
+
+
+		buttonRight = QPushButton(">>>")
+		self.controlLayout.addWidget(buttonRight,3,2)
+
+
+		#Buttons for setting angle to relative 0 and displaying distance p2p
+
+		buttonSetRelativeZero = QPushButton("Set angle 0")
+		self.controlLayout.addWidget(buttonSetRelativeZero,4,0)
+
+		buttonPointToPoint = QPushButton("Point to point")
+		self.controlLayout.addWidget(buttonPointToPoint,4,2)
+
+		return
+
+
+	def defineSignals(self):
+		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
+		self.moveRightStartSignal.connect(self.controlThreadObject.moveRightStart)
+		self.moveRightStopSignal.connect(self.controlThreadObject.moveRightStop)
+		self.moveLeftStartSignal.connect(self.controlThreadObject.moveLeftStart)
+		self.moveLeftStopSignal.connect(self.controlThreadObject.moveLeftStop)
+		self.measureDistanceSignal.connect(self.controlThreadObject.measureDistance)
+		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
+		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
+		return
+
+	def buttonToggleLaserClicked(self):
+		qDebug("dupa wojtka")
+		self.toggleLaserSignal.emit()
+	
+		return 
+
+
+	def buttonMeasureClicked(self):
+		#A slot which handles Measure button click 
+		self.measureDistanceSignal.emit()
+		return
+
+	def buttonSetRelativeAngleToZeroClicked(self):
+		#Slot which set  relative angle to zero degrees. Useful for calibration
+		self.setAngleToZeroSignal.emit()
+		return
+
+	def buttonMoveRightPressed(self):
+		#Slot 
+		self.moveRightStartSignal.emit()
+		return
+
+	def buttonMoveRightReleased(self):
+		#Slot
+		self.moveRightStopSignal.emit()
+		return
+
+	def buttonMoveLeftPressed(self):
+		#Slot 
+		self.moveLeftStartSignal.emit() 
+		return
+
+	def buttonMoveLeftReleased(self):
+		#Slot
+		self.moveLeftStopSignal.emit()
+		return
+
+	def getWidthPressed(self):
+		#Slot. Uses two last measurements and returns distance between these points  
+		self.getWidthPressed.emit()
+		return
+
+#Pseudocode for Control module of software
+
+class Point:
+    """
+    Class used for storing points in polar coordinates.
+    Angle is in respect to the front of the device.
+    """
+
+    def __init__(self, valuepassed=0, anglepassed=0, errorpassed=0):
+        self.value = valuepassed
+        self.angle = anglepassed
+        self.error = errorpassed
+    
+    def getCartesian(self)
+        """
+        Returns the cartesian coordinates of the point.
+        """
+        return (x, y)
+
+class Map:
+    """
+    Class used to store list of points in cartesian coordinates, where the device is an origin.
+    """
+    def __init__(self, listofcartesianpoints = []):
+        self.pointslits = listofcartesianpoints
+
+    def createMap(self, listofcartesianpoints)
+        """
+        Creates a proper map with straight walls from given list.
+        """
+        return mappedPoints
+
+    def getQImage(self, scale = 0) //TODO decide on default value based on the size of the screen
+        """
+        Returns scaled QImage of the map
+        """
+        return mapImage
+
+
+
+class Control(QObject):
+    """
+    One-instance class that handles processing of data and hardware interaction.
+    """
+    
+    def __init__(self):
+        self.angleabs = 0
+        self.anglecurrent = 0
+        self.prevpoint = Point()
+        self.prevprecpoint = Point()
+
+    def getLidar():
+        """
+        Obtains single value of measurement from LIDAR sensor
+        """
+        return value_from_LIDARsensor
+
+    def moveMotorBynStep(stepnum):
+        """
+        Moves motor by number of basic steps
+        """
+        return angle_moved_by
+
+    def getDistance(samplesize=10)
+        """
+        takes n = 10 ( //TODO specify appropiate number)
+        measurements and returns them as a list
+        """
+        l = []
+        for it in range(samplesize):
+            l[it] = getLidar()
+        return l
+
+    def calibrateMotor(self)
+    """Sets current absolute angle to 0"""
+    self.angleabs = 0
+    self.anglecurrent = 0
+    return
+    
+    def getWidth(A, B)
+    """
+    Accepts class point as arguments
+    Calculates the distance between 2 points and error of the calculation.
+    Returns both values.
+    """
+    return width, errorwidth
+
+    def analyseMeasurement(list = [])
+    """
+    Performs mathematical analysis of set of measuerent.
+    Returns calculated value and its error.
+    """
+    return (value, errorvalue)
+    
+
+    def defineSignals(self):
+		return
+
+	#These are slots which receive from engine
+	def toggleLaser(self):
+        """Toggles the laser on and off"""		
+		return 
+
+	def moveRightStart(self):
+        """Starts movement of motor to the right until moveStop() is called"""
+		return
+
+	def moveRightStop(self):
+        """Stops movement of motor"""
+		return
+
+	def moveLeftStart(self):
+        """Starts movement of motor to the left until moveStop() is called"""
+		return
+
+	def moveLeftStop(self):
+        """Stops movement of motor"""
+		return
+
+	def measureDistance(self):
+        """Measures distance to the object"""
+        d = getDistance()
+		return
+
+	def setAngleToZero(self):
+        """Calibrates absolute angle to be set at the current position of the motor"""
+		return
+
+	def calculateWidth(self):
+        """Calls getWidth() which returns distanmce bewteen last 2 measured points"""
+		return 
+		
+		from PyQt5.QtCore import QObject
+
+class Comms(QObject):
+	def __init__(self, parent = None):
+		QObject.__init__(self)
+
+	
+
