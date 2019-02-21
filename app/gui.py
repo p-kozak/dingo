@@ -1,10 +1,26 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, qDebug, pyqtSignal
 from control import Control
 from comms import Comms
 
 
-class MainWindow(QMainWindow): 
+
+
+class MainWindow(QMainWindow):
+
+	#Signals which go to control. They have to be declared here due to limitations of the PyQt5
+	#https://stackoverflow.com/questions/2970312/pyqt4-qtcore-pyqtsignal-object-has-no-attribute-connect
+	#well explained in the link above
+	toggleLaserSignal = pyqtSignal()
+	moveRightStartSignal = pyqtSignal()
+	moveRightStopSignal = pyqtSignal()
+	moveLeftStartSignal = pyqtSignal()
+	moveLeftStopSignal = pyqtSignal()
+	measureDistanceSignal = pyqtSignal()
+	setAngleToZeroSignal = pyqtSignal()
+	calculateWidthSignal = pyqtSignal()
+
+
 	def __init__(self, parent = None):
 		QMainWindow.__init__(self)
 		#Set the properties of the window
@@ -14,6 +30,7 @@ class MainWindow(QMainWindow):
 		#initialise widgets and threads
 		self.displayWidgets()
 		self.setUpThreads()
+		self.defineSignals()
 		
 		self.show()
 
@@ -74,6 +91,7 @@ class MainWindow(QMainWindow):
 		#Buttons for the left part of the layout
 
 		button = QPushButton("Toggle laser")
+		button.clicked.connect(self.buttonToggleLaserClicked)
 		self.controlLayout.addWidget(button,0,0)
 
 		button = QPushButton("Bluetooth Connect")
@@ -118,33 +136,57 @@ class MainWindow(QMainWindow):
 		return
 
 
+	def defineSignals(self):
+		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
+		self.moveRightStartSignal.connect(self.controlThreadObject.moveRightStart)
+		self.moveRightStopSignal.connect(self.controlThreadObject.moveRightStop)
+		self.moveLeftStartSignal.connect(self.controlThreadObject.moveLeftStart)
+		self.moveLeftStopSignal.connect(self.controlThreadObject.moveLeftStop)
+		self.measureDistanceSignal.connect(self.controlThreadObject.measureDistance)
+		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
+		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
+		return
+
+	def buttonToggleLaserClicked(self):
+		qDebug("dupa wojtka")
+		self.toggleLaserSignal.emit()
+	
+		return 
+
+
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
+		self.measureDistanceSignal.emit()
 		return
 
 	def buttonSetRelativeAngleToZeroClicked(self):
 		#Slot which set  relative angle to zero degrees. Useful for calibration
+		self.setAngleToZeroSignal.emit()
 		return
 
-
 	def buttonMoveRightPressed(self):
-		#Slot  
+		#Slot 
+		self.moveRightStartSignal.emit()
 		return
 
 	def buttonMoveRightReleased(self):
 		#Slot
+		self.moveRightStopSignal.emit()
 		return
 
 	def buttonMoveLeftPressed(self):
-		#Slot  
+		#Slot 
+		self.moveLeftStartSignal.emit() 
 		return
 
 	def buttonMoveLeftReleased(self):
 		#Slot
+		selff.moveLeftStopSignal.emit()
 		return
 
-	def getDistanceBetweenTwoLastPointsPressed(self):
+	def getWidthPressed(self):
 		#Slot. Uses two last measurements and returns distance between these points  
+		self.getWidthPressed.emit()
 		return
 
 
