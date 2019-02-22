@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, qDebug, pyqtSignal
-from control import Control
+from control import *
 from comms import Comms
 
 
