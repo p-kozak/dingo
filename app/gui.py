@@ -65,31 +65,100 @@ class MainWindow(QMainWindow):
 
 	def displayWidgets(self):
 
-		mainWidget = QWidget()
-		mainLayout = QHBoxLayout()
-		mainWidget.setLayout(mainLayout)
-		self.setCentralWidget(mainWidget)
+		self.setUpCentralWidget()
+		self.setUpMenuWidget()
+		self.setUpStackedLayoutWidget()
+		self.setUpControlGridWidget()
+		self.setUpDataDisplayWidget()
+		self.addMenuButtons()
+		#self.stackedLayout.setCurrentWidget(self.dataDisplayWidget)
 
+
+
+
+		
+
+		#test button for menu bar
+		
 		#Layout and widget for the left part of the GUI - buttons
-		gridWidget = QWidget()
-		gridWidget.setMinimumSize(280,480)
-		self.controlLayout = QGridLayout()
-		gridWidget.setLayout(self.controlLayout)
-		mainLayout.addWidget(gridWidget)
+		
 
 
 
 		#Prototype layout and widget for the right part of the GUI- display
-		horWidget = QWidget()
-		horWidget.setMinimumSize(520,480)
-		self.displayLayout = QVBoxLayout()
-		horWidget.setLayout(self.displayLayout)
-		mainLayout.addWidget(horWidget)
+		# horWidget = QWidget()
+		# horWidget.setMinimumSize(520,480)
+		# self.displayLayout = QVBoxLayout()
+		# horWidget.setLayout(self.displayLayout)
+		# mainLayout.addWidget(horWidget)
 
 		
 
-		#Buttons for the left part of the layout
+		#Buttons for the grid
+		self.addButtonsToControlGrid()
 
+		
+
+		return
+	def setUpMenuWidget(self):
+		menuWidget = QWidget()
+		menuWidget.setMinimumSize(800,20)
+		self.menuLayout = QHBoxLayout()
+		menuWidget.setLayout(self.menuLayout)
+		self.mainLayout.addWidget(menuWidget)
+		return
+
+		
+	def setUpStackedLayoutWidget(self):
+		stackedWidget = QWidget()
+		stackedWidget.setMinimumSize(800,380)
+		self.stackedLayout = QStackedLayout()
+		stackedWidget.setLayout(self.stackedLayout)
+		self.mainLayout.addWidget(stackedWidget)
+
+		return
+
+	def setUpCentralWidget(self):
+		mainWidget = QWidget()
+		self.mainLayout = QVBoxLayout()
+		mainWidget.setLayout(self.mainLayout)
+		self.setCentralWidget(mainWidget)
+		return
+
+	def setUpControlGridWidget(self):
+		self.controlWidget = QWidget()
+		self.controlWidget.setMinimumSize(800,380)
+		self.controlLayout = QGridLayout()
+		self.controlWidget.setLayout(self.controlLayout)
+		self.stackedLayout.addWidget(self.controlWidget)
+		return
+
+	def setUpDataDisplayWidget(self):
+		self.dataDisplayWidget = QWidget()
+		self.dataDisplayWidget.setMinimumSize(800,380)
+		self.dataDisplayLayout = QVBoxLayout()
+		self.dataDisplayWidget.setLayout(self.dataDisplayLayout)
+		self.stackedLayout.addWidget(self.dataDisplayWidget)
+		return
+
+
+	def addMenuButtons(self):
+		buttonControl = QPushButton("Control Panel")
+		buttonControl.clicked.connect(self.switchStackedLayoutWidget(self.controlWidget))
+		self.menuLayout.addWidget(buttonControl)
+
+		buttonDisplay = QPushButton("Display data")
+		buttonDisplay.clicked.connect(self.switchStackedLayoutWidget(self.dataDisplayWidget))
+		self.menuLayout.addWidget(buttonDisplay)
+
+		return
+
+	def switchStackedLayoutWidget(self, widget):
+		def dupa():
+			self.stackedLayout.setCurrentWidget(widget)
+		return dupa
+
+	def addButtonsToControlGrid(self):
 		button = QPushButton("Toggle laser")
 		button.clicked.connect(self.buttonToggleLaserClicked)
 		self.controlLayout.addWidget(button,0,0)
@@ -133,8 +202,7 @@ class MainWindow(QMainWindow):
 		buttonPointToPoint = QPushButton("Point to point")
 		self.controlLayout.addWidget(buttonPointToPoint,4,2)
 
-		return
-
+		return 
 
 	def defineSignals(self):
 		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
