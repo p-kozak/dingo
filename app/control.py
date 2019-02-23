@@ -58,13 +58,13 @@ class Control(QObject):
         """
         return value_from_LIDARsensor
 
-    def moveMotorBynStep(stepnum):
+    def moveMotorBynStep(self, stepnum):
         """
         Moves motor by number of basic steps
         """
         return angle_moved_by
 
-    def getDistance(samplesize=10):
+    def getDistance(self, samplesize=10):
         """
         takes n = 10 ( //TODO specify appropiate number)
         measurements and returns them as a list
@@ -80,7 +80,7 @@ class Control(QObject):
         self.anglecurrent = 0
         return
         
-    def getWidth(A, B):
+    def getWidth(self, A, B):
         """
         Accepts class point as arguments
         Calculates the distance between 2 points and error of the calculation.
@@ -88,7 +88,7 @@ class Control(QObject):
         """
         return width, errorwidth
 
-    def analyseMeasurement(list = []):
+    def analyseMeasurement(self, list = []):
         """
         Performs mathematical analysis of set of measuerent.
         Returns calculated value and its error.
@@ -122,7 +122,6 @@ class Control(QObject):
 
     def measureDistance(self):
         """Measures distance to the object"""
-        d = getDistance()
         return
     
     def setAngleToZero(self):
