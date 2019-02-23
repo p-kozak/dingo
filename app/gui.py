@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, qDebug, pyqtSignal
 from control import *
+from PyQt5 import QtGui
 from comms import Comms
 
 
@@ -31,6 +32,8 @@ class MainWindow(QMainWindow):
 		self.displayWidgets()
 		self.setUpThreads()
 		self.defineSignals()
+		
+		self.updateDisplays() #delete later
 		
 		self.show()
 
@@ -71,33 +74,10 @@ class MainWindow(QMainWindow):
 		self.setUpControlGridWidget()
 		self.setUpDataDisplayWidget()
 		self.addMenuButtons()
-		#self.stackedLayout.setCurrentWidget(self.dataDisplayWidget)
-
-
-
-
-		
-
-		#test button for menu bar
-		
-		#Layout and widget for the left part of the GUI - buttons
-		
-
-
-
-		#Prototype layout and widget for the right part of the GUI- display
-		# horWidget = QWidget()
-		# horWidget.setMinimumSize(520,480)
-		# self.displayLayout = QVBoxLayout()
-		# horWidget.setLayout(self.displayLayout)
-		# mainLayout.addWidget(horWidget)
-
-		
-
-		#Buttons for the grid
 		self.addButtonsToControlGrid()
+		self.addDisplaysToControlGrid()
+		self.initialiseVariablesToZero()
 
-		
 
 		return
 	def setUpMenuWidget(self):
@@ -144,63 +124,114 @@ class MainWindow(QMainWindow):
 
 	def addMenuButtons(self):
 		buttonControl = QPushButton("Control Panel")
+		buttonControl.setFixedHeight(40)
 		buttonControl.clicked.connect(self.switchStackedLayoutWidget(self.controlWidget))
 		self.menuLayout.addWidget(buttonControl)
 
 		buttonDisplay = QPushButton("Display data")
+		buttonDisplay.setFixedHeight(40)
 		buttonDisplay.clicked.connect(self.switchStackedLayoutWidget(self.dataDisplayWidget))
 		self.menuLayout.addWidget(buttonDisplay)
 
 		return
 
 	def switchStackedLayoutWidget(self, widget):
-		def dupa():
+		#this is an interesting concept. I couldn't pass a widget directly to the setCurrentWidget
+		#I had to use something called function factory
+		#https://stackoverflow.com/questions/6784084/how-to-pass-arguments-to-functions-by-the-click-of-button-in-pyqt
+		#More information on stack 
+		def functionFactory():
 			self.stackedLayout.setCurrentWidget(widget)
-		return dupa
+		return functionFactory
+
+	def initialiseVariablesToZero(self):
+		self.lastDistance = 0
+		self.lastAngle = 0
+		self.formerDistance = 0
+		self.formerAngle = 0
+		self.lastWidth = 0
+		return
+
+	def updateDisplays(self):
+		self.boxDistanceLast.setText("Last distance: " + str(self.lastDistance) )
+		self.boxAngleLast.setText("Last angle: " + str(self.lastAngle))
+		self.boxDistanceFormer.setText("Former distance: " + str(self.formerDistance))
+		self.boxAngleFormer.setText("Former angle: " + str(self.formerAngle))
+		self.boxWidth.setText("Last width: " + str(self.lastWidth))
+		return
+
+
+	def addDisplaysToControlGrid(self):
+		self.boxDistanceLast = QLineEdit()
+		self.boxDistanceLast.setFixedHeight(40)
+		self.boxDistanceLast.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxDistanceLast,2,0)
+
+		self.boxAngleLast = QLineEdit()
+		self.boxAngleLast.setFixedHeight(40)
+		self.boxAngleLast.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxAngleLast,2,1)
+
+		self.boxDistanceFormer = QLineEdit()
+		self.boxDistanceFormer.setFixedHeight(40)
+		self.boxDistanceFormer.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxDistanceFormer,3,0)
+
+		self.boxAngleFormer = QLineEdit()
+		self.boxAngleFormer.setFixedHeight(40)
+		self.boxAngleFormer.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxAngleFormer,3,1)
+
+		self.boxWidth = QLineEdit()
+		self.boxWidth.setFixedHeight(40)
+		self.boxWidth.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxWidth,2,2)
+
+		return 
 
 	def addButtonsToControlGrid(self):
-		button = QPushButton("Toggle laser")
-		button.clicked.connect(self.buttonToggleLaserClicked)
-		self.controlLayout.addWidget(button,0,0)
+		buttonToggleLaser = QPushButton("Toggle laser")
+		buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
+		self.controlLayout.addWidget(buttonToggleLaser,0,0)
 
-		button = QPushButton("Bluetooth Connect")
-		self.controlLayout.addWidget(button,0,2)
+		buttonBluetoothConnect = QPushButton("Bluetooth Connect")
+		buttonBluetoothConnect.clicked.connect(self.buttonBluetoothConnectClicked)
+		self.controlLayout.addWidget(buttonBluetoothConnect,0,2)
 
 		#Boxes for displaying last measured distance and angle. Blocked, will be updated by later functions
-
-		self.boxDistance = QLineEdit("Last distance: 4.2m")
-		self.boxDistance.setReadOnly(True)
-		self.controlLayout.addWidget(self.boxDistance,2,0)
-
-		self.boxAngle = QLineEdit("Angle: 34.3")
-		self.boxAngle.setReadOnly(True)
-		self.controlLayout.addWidget(self.boxAngle,2,2)
-
-		self.boxPointToPoint = QLineEdit("P2P: 13.4m")
-		self.boxPointToPoint.setReadOnly(True)
-		self.controlLayout.addWidget(self.boxPointToPoint,2,1)
+		
 
 		#Push Buttons For moving right, left and taking measurement
 
 		buttonLeft = QPushButton("<<<")
-		self.controlLayout.addWidget(buttonLeft,3,0)
+		buttonLeft.pressed.connect(self.buttonMoveLeftPressed)
+		buttonLeft.released.connect(self.buttonMoveLeftReleased)
+		buttonLeft.setFixedHeight(60)
+		self.controlLayout.addWidget(buttonLeft,6,0)
 
 
 		buttonMeasure = QPushButton("Measure")
-		self.controlLayout.addWidget(buttonMeasure,3,1)
+		buttonMeasure.clicked.connect(self.buttonMeasureClicked)
+		buttonMeasure.setFixedHeight(60)
+		self.controlLayout.addWidget(buttonMeasure,6,1)
 
 
 		buttonRight = QPushButton(">>>")
-		self.controlLayout.addWidget(buttonRight,3,2)
+		buttonRight.pressed.connect(self.buttonMoveRightPressed)
+		buttonRight.released.connect(self.buttonMoveRightReleased)
+		buttonRight.setFixedHeight(60)
+		self.controlLayout.addWidget(buttonRight,6,2)
 
 
 		#Buttons for setting angle to relative 0 and displaying distance p2p
 
 		buttonSetRelativeZero = QPushButton("Set angle 0")
-		self.controlLayout.addWidget(buttonSetRelativeZero,4,0)
+		buttonSetRelativeZero.clicked.connect(self.buttonSetRelativeAngleToZeroClicked)
+		self.controlLayout.addWidget(buttonSetRelativeZero,8,0)
 
-		buttonPointToPoint = QPushButton("Point to point")
-		self.controlLayout.addWidget(buttonPointToPoint,4,2)
+		buttonWidth = QPushButton("Calculate width")
+		buttonWidth.clicked.connect(self.buttonGetWidthPressed)
+		self.controlLayout.addWidget(buttonWidth,8,2)
 
 		return 
 
@@ -220,7 +251,6 @@ class MainWindow(QMainWindow):
 		self.toggleLaserSignal.emit()
 	
 		return 
-
 
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
@@ -249,12 +279,16 @@ class MainWindow(QMainWindow):
 
 	def buttonMoveLeftReleased(self):
 		#Slot
-		selff.moveLeftStopSignal.emit()
+		self.moveLeftStopSignal.emit()
 		return
 
-	def getWidthPressed(self):
+	def buttonGetWidthPressed(self):
 		#Slot. Uses two last measurements and returns distance between these points  
-		self.getWidthPressed.emit()
+		self.calculateWidthSignal.emit()
+		return
+
+	def buttonBluetoothConnectClicked(self):
+		#Slot
 		return
 
 
