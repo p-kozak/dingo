@@ -1,4 +1,5 @@
-from PyQt5.QtCore import QObject, qDebug, pyqtSignal
+from PyQt5.QtCore import QObject, qDebug
+from hardwarecontrol import *
 
 #Pseudocode for Control module of software
 
@@ -40,6 +41,7 @@ class Map:
 
 
 
+
 class Control(QObject):
 
     #Signals for sending data to gui
@@ -56,6 +58,8 @@ class Control(QObject):
         self.anglecurrent = 0
         self.prevpoint = Point()
         self.prevprecpoint = Point()
+        self.hcontrol = HardwareControl()
+
 
     def getLidar():
         """
@@ -69,6 +73,7 @@ class Control(QObject):
         """
         return angle_moved_by
 
+
     def getDistance(self, samplesize=10):
         """
         takes n = 10 ( //TODO specify appropiate number)
@@ -80,10 +85,14 @@ class Control(QObject):
         return l
 
     def calibrateMotor(self):
-        """Sets current absolute angle to 0"""
+        """
+        Sets current absolute angle to 0
+        """
         self.angleabs = 0
         self.anglecurrent = 0
         return
+    
+ 
         
     def getWidth(self, A, B):
         """
@@ -93,20 +102,18 @@ class Control(QObject):
         """
         return width, errorwidth
 
+
     def analyseMeasurement(self, list = []):
         """
         Performs mathematical analysis of set of measuerent.
         Returns calculated value and its error.
         """
         return (value, errorvalue)
-    
+      
 
-    def defineSignals(self):
-        return
 
 	#These are slots which receive from engine
     def toggleLaser(self):
-    
         """Toggles the laser on and off"""		
         return 
 
