@@ -7,6 +7,7 @@ from comms import Comms
 
 
 
+
 class MainWindow(QMainWindow):
 
 	#Signals which go to control. They have to be declared here due to limitations of the PyQt5
@@ -32,8 +33,10 @@ class MainWindow(QMainWindow):
 		self.displayWidgets()
 		self.setUpThreads()
 		self.defineSignals()
-		
+
 		self.updateDisplays() #delete later
+
+		self.displayPikaPika()
 		
 		self.show()
 
@@ -72,14 +75,17 @@ class MainWindow(QMainWindow):
 		self.setUpMenuWidget()
 		self.setUpStackedLayoutWidget()
 		self.setUpControlGridWidget()
+		self.setUpImagesWidget()
 		self.setUpDataDisplayWidget()
 		self.addMenuButtons()
 		self.addButtonsToControlGrid()
 		self.addDisplaysToControlGrid()
 		self.initialiseVariablesToZero()
+		self.addSliderToControlGrid()
 
 
 		return
+
 	def setUpMenuWidget(self):
 		menuWidget = QWidget()
 		menuWidget.setMinimumSize(800,20)
@@ -113,6 +119,13 @@ class MainWindow(QMainWindow):
 		self.stackedLayout.addWidget(self.controlWidget)
 		return
 
+	def setUpImagesWidget(self):
+		self.imagesWidget = QWidget()
+		self.imagesWidget.setMinimumSize(800,380)
+		self.imagesLayout = QHBoxLayout()
+		self.imagesWidget.setLayout(self.imagesLayout)
+		self.stackedLayout.addWidget(self.imagesWidget)
+
 	def setUpDataDisplayWidget(self):
 		self.dataDisplayWidget = QWidget()
 		self.dataDisplayWidget.setMinimumSize(800,380)
@@ -132,6 +145,11 @@ class MainWindow(QMainWindow):
 		buttonDisplay.setFixedHeight(40)
 		buttonDisplay.clicked.connect(self.switchStackedLayoutWidget(self.dataDisplayWidget))
 		self.menuLayout.addWidget(buttonDisplay)
+
+		buttonImages = QPushButton("Maps and images")
+		buttonImages.setFixedHeight(40)
+		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
+		self.menuLayout.addWidget(buttonImages)
 
 		return
 
@@ -189,12 +207,24 @@ class MainWindow(QMainWindow):
 
 		return 
 
+	def addSliderToControlGrid(self):
+		self.slider = QSlider()
+		self.slider.setTickPosition(1)
+		self.slider.setTickInterval(10)
+		self.slider.setSingleStep(1)
+		self.slider.setOrientation(1)
+
+		self.controlLayout.addWidget(self.slider,5,0,1,2)
+		return 
+
 	def addButtonsToControlGrid(self):
 		buttonToggleLaser = QPushButton("Toggle laser")
+		buttonToggleLaser.setFixedHeight(40)
 		buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
 		self.controlLayout.addWidget(buttonToggleLaser,0,0)
 
 		buttonBluetoothConnect = QPushButton("Bluetooth Connect")
+		buttonBluetoothConnect.setFixedHeight(40)
 		buttonBluetoothConnect.clicked.connect(self.buttonBluetoothConnectClicked)
 		self.controlLayout.addWidget(buttonBluetoothConnect,0,2)
 
@@ -226,16 +256,19 @@ class MainWindow(QMainWindow):
 		#Buttons for setting angle to relative 0 and displaying distance p2p
 
 		buttonSetRelativeZero = QPushButton("Set angle 0")
+		buttonSetRelativeZero.setFixedHeight(40)
 		buttonSetRelativeZero.clicked.connect(self.buttonSetRelativeAngleToZeroClicked)
 		self.controlLayout.addWidget(buttonSetRelativeZero,8,0)
 
 		buttonWidth = QPushButton("Calculate width")
+		buttonWidth.setFixedHeight(40)
 		buttonWidth.clicked.connect(self.buttonGetWidthPressed)
 		self.controlLayout.addWidget(buttonWidth,8,2)
 
 		return 
 
 	def defineSignals(self):
+		#gui -> control
 		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
 		self.moveRightStartSignal.connect(self.controlThreadObject.moveRightStart)
 		self.moveRightStopSignal.connect(self.controlThreadObject.moveRightStop)
@@ -244,6 +277,12 @@ class MainWindow(QMainWindow):
 		self.measureDistanceSignal.connect(self.controlThreadObject.measureDistance)
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
+
+		#control -> gui
+		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
+		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
+		self.controlThreadObject.sendWidthSignal.connect(self.receiveWidth)
+
 		return
 
 	def buttonToggleLaserClicked(self):
@@ -291,5 +330,29 @@ class MainWindow(QMainWindow):
 		#Slot
 		return
 
+	def displayPikaPika(self):
+		pika = QLabel(self)
+		pix = QtGui.QPixmap("pika.png")
+		pix = pix.scaled(800,380)
+		pika.setPixmap(pix)
+		self.imagesLayout.addWidget(pika)
 
 
+		pika.show()
+
+
+
+		return 
+
+	def receivePoint(self, point):
+
+		return
+
+	def receiveWidth(self, width):
+		print(width)
+
+		return
+
+	def receiveMap(self, map):
+
+		return 
