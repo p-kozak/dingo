@@ -1,5 +1,8 @@
-from control import *
+#from control import *
+from dataprocessing import *
 
 x = Point()
 
-print(x.angle)
+data = DataProcessing()
+
+print(data.analyseValues([1, 2, 3]))

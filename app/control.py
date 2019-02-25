@@ -48,10 +48,10 @@ class Control(QObject):
     """
     
     def __init__(self):
-        self.angleabs = 0
-        self.anglecurrent = 0
         self.prevpoint = Point()
         self.prevprecpoint = Point()
+        self.hcontrol = HardwareControl()
+
 
     def getLidar():
         """

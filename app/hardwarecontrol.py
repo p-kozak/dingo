@@ -48,6 +48,11 @@ class StepMotor:
         #TODO check how change of direction actually works
 
 
+class Lidar:
+    """
+    One instance class to control the lidar
+    """
+
 
 
 
