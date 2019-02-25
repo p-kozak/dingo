@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject, qDebug
+from hardwarecontrol import *
 
 #Pseudocode for Control module of software
 
@@ -13,7 +14,7 @@ class Point:
         self.angle = anglepassed
         self.error = errorpassed
     
-    def getCartesian(self)
+    def getCartesian(self):
         """
         Returns the cartesian coordinates of the point.
         """
@@ -26,17 +27,18 @@ class Map:
     def __init__(self, listofcartesianpoints = []):
         self.pointlist = listofcartesianpoints
 
-    def createMap(self, listofcartesianpoints)
+    def createMap(self, listofcartesianpoints):
         """
         Creates a proper map with straight walls from given list.
         """
         return mappedPoints
 
-    def getQImage(self, scale = 0) //TODO decide on default value based on the size of the screen
+    def getQImage(self, scale = 0): #TODO decide on default value based on the size of the screen
         """
         Returns scaled QImage of the map
         """
         return mapImage
+
 
 
 
@@ -63,7 +65,7 @@ class Control(QObject):
         """
         return angle_moved_by
 
-    def getDistance(samplesize=10)
+    def getDistance(samplesize=10):
         """
         takes n = 10 ( //TODO specify appropiate number)
         measurements and returns them as a list
@@ -73,61 +75,82 @@ class Control(QObject):
             l[it] = getLidar()
         return l
 
-    def calibrateMotor(self)
-    """Sets current absolute angle to 0"""
-    self.angleabs = 0
-    self.anglecurrent = 0
-    return
+    def calibrateMotor(self):
+        """
+        Sets current absolute angle to 0
+        """
+        self.angleabs = 0
+        self.anglecurrent = 0
+        return
     
-    def getWidth(A, B)
-    """
-    Accepts class point as arguments
-    Calculates the distance between 2 points and error of the calculation.
-    Returns both values.
-    """
-    return width, errorwidth
+    def getWidth(A, B):
+        """
+        Accepts class point as arguments
+        Calculates the distance between 2 points and error of the calculation.
+        Returns both values.
+        """
+        return width, errorwidth
 
-    def analyseMeasurement(list = [])
-    """
-    Performs mathematical analysis of set of measuerent.
-    Returns calculated value and its error.
-    """
-    return (value, errorvalue)
-    
+    def analyseMeasurement(list = []):
+        """
+        Performs mathematical analysis of set of measuerent.
+        Returns calculated value and its error.
+        """
+        return (value, errorvalue)
+        
 
     def defineSignals(self):
-		return
+        """
+        def
+        """
+        return
 
 	#These are slots which receive from engine
-	def toggleLaser(self):
-        """Toggles the laser on and off"""		
-		return 
+    def toggleLaser(self):
+        """
+        Toggles the laser on and off
+        """		
+        return 
 
-	def moveRightStart(self):
-        """Starts movement of motor to the right until moveStop() is called"""
-		return
+    def moveRightStart(self):
+        """
+        Starts movement of motor to the right until moveStop() is called
+        """
+        return
 
-	def moveRightStop(self):
-        """Stops movement of motor"""
-		return
+    def moveRightStop(self):
+        """
+        Stops movement of motor
+        """
+        return
 
-	def moveLeftStart(self):
-        """Starts movement of motor to the left until moveStop() is called"""
-		return
+    def moveLeftStart(self):
+        """
+        Starts movement of motor to the left until moveStop() is called
+        """
+        return
 
-	def moveLeftStop(self):
-        """Stops movement of motor"""
-		return
+    def moveLeftStop(self):
+        """
+        Stops movement of motor
+        """
+        return
 
-	def measureDistance(self):
-        """Measures distance to the object"""
+    def measureDistance(self):
+        """
+        Measures distance to the object
+        """
         d = getDistance()
-		return
+        return
 
-	def setAngleToZero(self):
-        """Calibrates absolute angle to be set at the current position of the motor"""
-		return
+    def setAngleToZero(self):
+        """
+        Calibrates absolute angle to be set at the current position of the motor
+        """
+        return
 
-	def calculateWidth(self):
-        """Calls getWidth() which returns distanmce bewteen last 2 measured points"""
-		return 
+    def calculateWidth(self):
+        """
+        Calls getWidth() which returns distanmce bewteen last 2 measured points
+        """
+        return 
