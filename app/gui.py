@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
 		self.displayWidgets()
 		self.setUpThreads()
 		self.defineSignals()
+
 		self.updateDisplays() #delete later
 
 		self.displayPikaPika()
@@ -80,9 +81,11 @@ class MainWindow(QMainWindow):
 		self.addButtonsToControlGrid()
 		self.addDisplaysToControlGrid()
 		self.initialiseVariablesToZero()
+		self.addSliderToControlGrid()
 
 
 		return
+
 	def setUpMenuWidget(self):
 		menuWidget = QWidget()
 		menuWidget.setMinimumSize(800,20)
@@ -204,6 +207,16 @@ class MainWindow(QMainWindow):
 
 		return 
 
+	def addSliderToControlGrid(self):
+		self.slider = QSlider()
+		self.slider.setTickPosition(1)
+		self.slider.setTickInterval(10)
+		self.slider.setSingleStep(1)
+		self.slider.setOrientation(1)
+
+		self.controlLayout.addWidget(self.slider,5,0,1,2)
+		return 
+
 	def addButtonsToControlGrid(self):
 		buttonToggleLaser = QPushButton("Toggle laser")
 		buttonToggleLaser.setFixedHeight(40)
@@ -255,6 +268,7 @@ class MainWindow(QMainWindow):
 		return 
 
 	def defineSignals(self):
+		#gui -> control
 		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
 		self.moveRightStartSignal.connect(self.controlThreadObject.moveRightStart)
 		self.moveRightStopSignal.connect(self.controlThreadObject.moveRightStop)
@@ -263,6 +277,12 @@ class MainWindow(QMainWindow):
 		self.measureDistanceSignal.connect(self.controlThreadObject.measureDistance)
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
+
+		#control -> gui
+		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
+		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
+		self.controlThreadObject.sendWidthSignal.connect(self.receiveWidth)
+
 		return
 
 	def buttonToggleLaserClicked(self):
@@ -321,5 +341,18 @@ class MainWindow(QMainWindow):
 		pika.show()
 
 
+
+		return 
+
+	def receivePoint(self, point):
+
+		return
+
+	def receiveWidth(self, width):
+		print(width)
+
+		return
+
+	def receiveMap(self, map):
 
 		return 

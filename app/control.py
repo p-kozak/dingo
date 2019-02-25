@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, qDebug
+from PyQt5.QtCore import QObject, qDebug, pyqtSignal
 
 #Pseudocode for Control module of software
 
@@ -41,6 +41,11 @@ class Map:
 
 
 class Control(QObject):
+
+    #Signals for sending data to gui
+    sendPointSignal = pyqtSignal(Point)
+    sendMapSignal = pyqtSignal(Map)
+    sendWidthSignal = pyqtSignal(int)
     """
     One-instance class that handles processing of data and hardware interaction.
     """
@@ -101,6 +106,7 @@ class Control(QObject):
 
 	#These are slots which receive from engine
     def toggleLaser(self):
+    
         """Toggles the laser on and off"""		
         return 
 
@@ -131,3 +137,15 @@ class Control(QObject):
     def calculateWidth(self):
         """Calls getWidth() which returns distanmce bewteen last 2 measured points"""
         return 
+
+
+    def sendPoint(self, point):
+        self.sendPointSignal.emit(point)
+        return
+
+    def sendMap(self, map):
+        self.sendMapSignal.emit(map)
+        return 
+
+    def sendWidth(self, width):
+        self.sendWidthSignal.emit(width)
