@@ -1,8 +1,13 @@
 #from control import *
 from dataprocessing import *
 
-x = Point()
+
+x = Point(150, 0)
+x.error = 3
+y = Point(350, 0)
+y.errror = 7
 
 data = DataProcessing()
 
-print(data.analyseValues([1, 2, 3]))
+width, werror = data.getWidth(x, y)
+print(width, werror)

@@ -6,7 +6,7 @@ class StepMotor:
     One instance class to control motor via gpio 
     """
     WAIT_TIME = .001
-    STEP_DEGREE = 0.2 #TODO specify the degrees for one step
+    STEP_DEGREE = 0.9 #TODO specify the degrees for one step
     def __init__(self):
         """
         Motor Setup.
@@ -27,7 +27,7 @@ class StepMotor:
 
     def turnbystep(self, stepnum=5, steptime=WAIT_TIME):
         """
-        Move by specified amount of steps, 1 step is TODO (specify)
+        Move by specified amount of steps, 1 step is 0.9 degrees
         1 step is 1 full clock, min high time is 1 ms.
         """
         if steptime < self.WAIT_TIME:
@@ -45,13 +45,19 @@ class StepMotor:
         Change the direction of motor movement.
         """
         self.direction = -self.direction
-        #TODO check how change of direction actually works
+        if self.direction >= 0:
+            self.dir.off()
+        else:
+            self.dir.on()
+
 
 
 class Lidar:
     """
     One instance class to control the lidar
     """
+    def __init__(self):
+        pass
 
 
 
