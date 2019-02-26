@@ -1,16 +1,21 @@
-import hardwarecontrol
+from hardwarecontrol import *
 
 motor = StepMotor()
 cont = True
-while(cont = True):
-    print("Specify number of steps. 1 step = 0.9 degrees")
-    innum = input("Specify number of steps, only integers. 1 step = 0.9 degrees.")
-    stepnum = int(innum)
+while cont == True:
+    print("Specify number of steps, only integers. 1 step = 0.9 degrees. \n If you want to exit input: exit")    
+    innum = input(">> ")
 
-    print("Moved")
-    motor.turnbystep(stepnum)
-    val = input("Do you want to continue? (y/n)")
-    if(val == y):
-        cont = True
-    else:
+    if innum == "exit":
         cont = False
+    else:
+        stepnum = int(innum)
+        
+        motor.turnbystep(stepnum)
+        print("Moved")
+        # print("Do you want to continue? (y/n)")
+        # val = input(">> ")
+        # if val == "y":
+        #     cont = True
+        # else:
+        #     cont = False

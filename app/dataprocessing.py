@@ -10,6 +10,7 @@ class Point:
         self.value = valuepassed
         self.angle = anglepassed
         self.error = errorpassed
+        self.objectType = "point"
     
     def getCartesian(self):
         """
@@ -23,6 +24,7 @@ class Map:
     """
     def __init__(self, listofcartesianpoints = []):
         self.pointlist = listofcartesianpoints
+        self.objectType = "map"
 
     def createMap(self, listofcartesianpoints):
         """
