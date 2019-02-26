@@ -9,7 +9,6 @@ class Control(QObject):
     #Signals for sending data to gui
     sendPointSignal = pyqtSignal(Point)
     sendMapSignal = pyqtSignal(Map)
-    sendWidthSignal = pyqtSignal(int)
     """
     One-instance class that handles processing of data and hardware interaction.
     """
@@ -116,5 +115,4 @@ class Control(QObject):
         self.sendMapSignal.emit(map)
         return 
 
-    def sendWidth(self, width):
-        self.sendWidthSignal.emit(width)
+

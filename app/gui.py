@@ -281,7 +281,6 @@ class MainWindow(QMainWindow):
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
 		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
-		self.controlThreadObject.sendWidthSignal.connect(self.receiveWidth)
 
 		return
 
@@ -345,11 +344,6 @@ class MainWindow(QMainWindow):
 		return 
 
 	def receivePoint(self, point):
-
-		return
-
-	def receiveWidth(self, width):
-		print(width)
 
 		return
 
