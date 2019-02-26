@@ -1,0 +1,2 @@
+#ignore __pycache__
+app/__pycache__/

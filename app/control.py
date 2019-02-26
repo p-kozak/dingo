@@ -1,44 +1,6 @@
 from PyQt5.QtCore import QObject, qDebug
 from hardwarecontrol import *
-
-#Pseudocode for Control module of software
-
-class Point:
-    """
-    Class used for storing points in polar coordinates.
-    Angle is in respect to the front of the device.
-    """
-
-    def __init__(self, valuepassed=0, anglepassed=0, errorpassed=0):
-        self.value = valuepassed
-        self.angle = anglepassed
-        self.error = errorpassed
-    
-    def getCartesian(self):
-        """
-        Returns the cartesian coordinates of the point.
-        """
-        return (x, y)
-
-class Map:
-    """
-    Class used to store list of points in cartesian coordinates, where the device is an origin.
-    """
-    def __init__(self, listofcartesianpoints = []):
-        self.pointlist = listofcartesianpoints
-
-    def createMap(self, listofcartesianpoints):
-        """
-        Creates a proper map with straight walls from given list.
-        """
-        return mappedPoints
-
-    def getQImage(self, scale = 0): #TODO decide on default value based on the size of the screen
-        """
-        Returns scaled QImage of the map
-        """
-        return mapImage
-
+from dataprocessing import *
 
 
 
