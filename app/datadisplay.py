@@ -4,26 +4,13 @@ from time import gmtime, strftime
 class DataDisplay(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
-		# scroll = QScrollArea()
-		# scroll.setWidgetResizable(True) # CRITICAL
-		# scroll.setMinimumSize(800,380)
-		# inner = QWidget()
-		# layout = QVBoxLayout()
-		# inner.setLayout(layout)
-		# scroll.setWidget(inner) # CRITICAL
-
-		# for i in range(10):
-		#     b = QPushButton("dupa")
-		#     layout.addWidget(b)
-		# scroll.show()
-
-
 		self.initialiseScrollArea()
 		self.addGridToScroll()
 		layout = QVBoxLayout()
 		self.setMinimumSize(800,380)
 		self.setLayout(layout)
 		layout.addWidget(self.scrollArea)
+
 
 
 	def initialiseScrollArea(self):
@@ -49,19 +36,27 @@ class DataDisplay(QWidget):
 			button = QPushButton(str(i))
 			button.setFixedHeight(70)
 			self.gridDataLayout.addWidget(button,i,0)
-
 		return
+
 	def addMeasurementToDisplay(self, object):
 		if object.objectType == "point":
-			addPointToDisplay(object.type)
-		elif object.type == "width":
-			addWidthToDisplay(object.type)
+			self.addPointToDisplay(object)
+		elif object.objectType == "width":
+			self.addWidthToDisplay(object)
 
 	def addPointToDisplay(self,object):
 		self.addTimeBoxToDisplay()
 		self.addTypeBoxToDisplay("POINT")
 		self.addDistanceBoxToDisplay(object.value)
 		self.addAngleBoxToDisplay(object.angle)
+		self.addErrorBoxToDisplay(object.error)
+		return
+
+	def addWidthToDisplay(self,object):
+		self.addTimeBoxToDisplay()
+		self.addTypeBoxToDisplay("WIDTH")
+		self.addWidthBoxToDisplay(object.value)
+		self.addErrorBoxToDisplay(object.error)
 		return
 			
 	def addTimeBoxToDisplay(self):
@@ -99,6 +94,26 @@ class DataDisplay(QWidget):
 		boxAngle.setText("ANGLE: " + str(angle))
 		self.gridDataLayout.addWidget(boxAngle, self.gridDataLayout.rowCount() -1 ,3)
 		return
+
+	def addErrorBoxToDisplay(self, error):
+		boxError = QLineEdit()
+		boxError.setFixedHeight(30)
+		boxError.setFixedWidth(90)
+		boxError.setReadOnly(True)
+		boxError.setText("Error: " + str(error))
+		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 ,4)
+		return
+
+	def addWidthBoxToDisplay(self, width):
+		boxError = QLineEdit()
+		boxError.setFixedHeight(30)
+		#boxError.setFixedWidth(180)
+		boxError.setReadOnly(True)
+		boxError.setText("Width: " + str(width))
+		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 , 2 ,1 ,2 )
+		return
+
+
 
 
 

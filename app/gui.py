@@ -285,7 +285,6 @@ class MainWindow(QMainWindow):
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
 		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
-		self.controlThreadObject.sendWidthSignal.connect(self.receiveWidth)
 
 		return
 
@@ -298,10 +297,11 @@ class MainWindow(QMainWindow):
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
 		self.measureDistanceSignal.emit()
-		point = Point()
-		point.value = 6
-		point.angle = 56
-		self.dataDisplayWidget.addPointToDisplay(point)
+		# point = Point()
+		# point.value = 6
+		# point.angle = 56
+		# point.error = 43
+		# self.dataDisplayWidget.addPointToDisplay(point)
 		return
 
 	def buttonSetRelativeAngleToZeroClicked(self):
@@ -332,6 +332,12 @@ class MainWindow(QMainWindow):
 	def buttonGetWidthPressed(self):
 		#Slot. Uses two last measurements and returns distance between these points  
 		self.calculateWidthSignal.emit()
+		# point = Point()
+		# point.value = 6
+		# point.objectType = "width"
+		# point.angle = 56
+		# point.error = 43
+		# self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
 
 	def buttonBluetoothConnectClicked(self):
@@ -353,11 +359,13 @@ class MainWindow(QMainWindow):
 		return 
 
 	def receivePoint(self, point):
-
+		if point.objectType == "point":
+			self.updateLastDistance(point)
+			self.dataDisplayWidget.addMeasurementToDisplay(point)
+		elif point.objectType == "width":
+			self.updateWidht(point)
+			self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
-
-	def receiveWidth(self, width):
-		print(width)
 
 		return
 
@@ -377,9 +385,10 @@ class MainWindow(QMainWindow):
 
 		return
 
-	def updateWidht(self, width):
-		self.boxWidth = width
+	def updateWidht(self, point):
+		self.lastWidth = point.value
 		self.updateDisplays()
 		return
+
 
 
