@@ -153,6 +153,7 @@ class MainWindow(QMainWindow):
 		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
 		self.menuLayout.addWidget(buttonImages)
 
+
 		return
 
 	def switchStackedLayoutWidget(self, widget):
@@ -297,6 +298,10 @@ class MainWindow(QMainWindow):
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
 		self.measureDistanceSignal.emit()
+		point = Point()
+		point.value = 6
+		point.angle = 56
+		self.dataDisplayWidget.addPointToDisplay(point)
 		return
 
 	def buttonSetRelativeAngleToZeroClicked(self):
