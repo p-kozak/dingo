@@ -80,7 +80,7 @@ class HardwareControl:
         Setup Motor and TODO Lidar
         """
         self.Motor = StepMotor()
-        self.motorangle = self.Motor.angle
+        #self.motorangle = self.Motor.angle
 
     def turnMotor(self, degrees, stepInsteadofDeg = False): #TODO add speed of turning
         """
@@ -89,9 +89,9 @@ class HardwareControl:
         if stepInsteadofDeg:
             stepnum = degrees
         else:
-            stepnum = int(degrees / Motor.STEP_DEGREE)
+            stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
-        motangle = Motor.turnbyStep(stepnum)
+        motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 
     def calibrateMotor(self):
