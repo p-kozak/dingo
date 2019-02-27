@@ -1,43 +1,6 @@
 from PyQt5.QtCore import QObject, qDebug, pyqtSignal
-
-#Pseudocode for Control module of software
-
-class Point:
-    """
-    Class used for storing points in polar coordinates.
-    Angle is in respect to the front of the device.
-    """
-
-    def __init__(self, valuepassed=0, anglepassed=0, errorpassed=0):
-        self.value = valuepassed
-        self.angle = anglepassed
-        self.error = errorpassed
-        self.objectType = "point"
-    
-    def getCartesian(self):
-        """
-        Returns the cartesian coordinates of the point.
-        """
-        return (x, y)
-
-class Map:
-    """
-    Class used to store list of points in cartesian coordinates, where the device is an origin.
-    """
-    def __init__(self, listofcartesianpoints = []):
-        self.pointlist = listofcartesianpoints
-
-    def createMap(self, listofcartesianpoints):
-        """
-        Creates a proper map with straight walls from given list.
-        """
-        return mappedPoints
-
-    def getQImage(self, scale = 0): #TODO decide on default value based on the size of the screen
-        """
-        Returns scaled QImage of the map
-        """
-        return mapImage
+from hardwarecontrol import HardwareControl
+from dataprocessing import *
 
 
 
@@ -56,18 +19,23 @@ class Control(QObject):
         self.anglecurrent = 0
         self.prevpoint = Point()
         self.prevprecpoint = Point()
+        self.hcontrol = HardwareControl()
 
-    def getLidar():
+
+    def getLidar(self):
         """
         Obtains single value of measurement from LIDAR sensor
         """
+        value_from_LIDARsensor = 0
         return value_from_LIDARsensor
 
     def moveMotorBynStep(self, stepnum):
         """
         Moves motor by number of basic steps
         """
+        angle_moved_by = 0
         return angle_moved_by
+
 
     def getDistance(self, samplesize=10):
         """
@@ -76,14 +44,18 @@ class Control(QObject):
         """
         l = []
         for it in range(samplesize):
-            l[it] = getLidar()
+            l[it] = 0
         return l
 
     def calibrateMotor(self):
-        """Sets current absolute angle to 0"""
+        """
+        Sets current absolute angle to 0
+        """
         self.angleabs = 0
         self.anglecurrent = 0
         return
+    
+ 
         
     def getWidth(self, A, B):
         """
@@ -91,22 +63,16 @@ class Control(QObject):
         Calculates the distance between 2 points and error of the calculation.
         Returns both values.
         """
-        return width, errorwidth
+        width = 0
+        errorwidth = 0
+        return (width, errorwidth)
 
-    def analyseMeasurement(self, list = []):
-        """
-        Performs mathematical analysis of set of measuerent.
-        Returns calculated value and its error.
-        """
-        return (value, errorvalue)
-    
 
-    def defineSignals(self):
-        return
+      
+
 
 	#These are slots which receive from engine
     def toggleLaser(self):
-    
         """Toggles the laser on and off"""		
         return 
 

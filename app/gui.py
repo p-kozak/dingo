@@ -367,7 +367,6 @@ class MainWindow(QMainWindow):
 			self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
 
-		return
 
 	def receiveMap(self, map):
 
