@@ -34,10 +34,10 @@ class StepMotor:
         1 step is 1 full clock, min high time is 1 ms.
         return current angle of motor
         """
-        if stepnum >=0 and self.direction == -1:
+        if stepnum >= 0 and self.direction == -1:
             self.dir.off() #right turn DIR = 0
             self.direction = 1
-        elif stepnum <=0 and self.direction == 1:
+        elif stepnum <= 0 and self.direction == 1:
             self.dir.on() #left turn DIR = 1
             self.direction = -1
 
@@ -87,7 +87,7 @@ class HardwareControl:
         Turns motor and returns the angle TODO(check how it actually should work)
         """
         if stepInsteadofDeg:
-            stepnum = degrees
+            stepnum = int(degrees)
         else:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 

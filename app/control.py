@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QObject, qDebug
-from hardwarecontrol import *
+from PyQt5.QtCore import QObject, qDebug, pyqtSignal
+from hardwarecontrol import HardwareControl
 from dataprocessing import *
 
 
@@ -23,16 +23,18 @@ class Control(QObject):
         self.hcontrol = HardwareControl()
 
 
-    def getLidar():
+    def getLidar(self):
         """
         Obtains single value of measurement from LIDAR sensor
         """
+        value_from_LIDARsensor = 0
         return value_from_LIDARsensor
 
     def moveMotorBynStep(self, stepnum):
         """
         Moves motor by number of basic steps
         """
+        angle_moved_by = 0
         return angle_moved_by
 
 
@@ -43,7 +45,7 @@ class Control(QObject):
         """
         l = []
         for it in range(samplesize):
-            l[it] = getLidar()
+            l[it] = 0
         return l
 
     def calibrateMotor(self):
@@ -62,15 +64,11 @@ class Control(QObject):
         Calculates the distance between 2 points and error of the calculation.
         Returns both values.
         """
-        return width, errorwidth
+        width = 0
+        errorwidth = 0
+        return (width, errorwidth)
 
 
-    def analyseMeasurement(self, list = []):
-        """
-        Performs mathematical analysis of set of measuerent.
-        Returns calculated value and its error.
-        """
-        return (value, errorvalue)
       
 
 
