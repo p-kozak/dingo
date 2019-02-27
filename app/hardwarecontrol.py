@@ -41,19 +41,21 @@ class StepMotor:
             self.dir.on() #left turn DIR = 1
             self.direction = -1
 
+        newangle =self.angle + self.STEP_DEGREE*self.direction*stepnum
 
-        if steptime < self.WAIT_TIME:
-            steptime = self.WAIT_TIME
+        if newangle < 200 and newangle > -200:
+            if steptime < self.WAIT_TIME:
+                steptime = self.WAIT_TIME
 
-        stepnum = abs(stepnum)
+            stepnum = abs(stepnum)
 
-        for it in range(stepnum):
-            self.stck.on()
-            time.sleep(steptime)
-            self.stck.off()
-            time.sleep(steptime)
+            for it in range(stepnum):
+                self.stck.on()
+                time.sleep(steptime)
+                self.stck.off()
+                time.sleep(steptime)
 
-        self.angle = self.angle + self.STEP_DEGREE*self.direction*stepnum
+            self.angle = newangle    
         return self.angle
 
 
@@ -84,7 +86,8 @@ class HardwareControl:
 
     def turnMotor(self, degrees, stepInsteadofDeg = False): #TODO add speed of turning
         """
-        Turns motor and returns the angle TODO(check how it actually should work)
+        Turns motor and returns the new angle of the motor.
+        The motor range is limited to 200 degrees both directions.
         """
         if stepInsteadofDeg:
             stepnum = int(degrees)

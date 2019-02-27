@@ -5,7 +5,7 @@ from dataprocessing import *
 
 
 class Control(QObject):
-
+ 
     #Signals for sending data to gui
     sendPointSignal = pyqtSignal(Point)
     sendMapSignal = pyqtSignal(Map)

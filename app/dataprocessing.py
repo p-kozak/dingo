@@ -1,4 +1,6 @@
 import numpy as np
+from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor, QImage
+from PyQt5.QtCore import Qt
 
 class Point:
     """
@@ -16,6 +18,9 @@ class Point:
         """
         Returns the cartesian coordinates of the point.
         """
+        radangle = np.deg2rad(self.angle)
+        x = self.value * np.cos(radangle)
+        y = self.value * np.sin(radangle)
         return (x, y)
 
 class Map:
@@ -23,19 +28,48 @@ class Map:
     Class used to store list of points in cartesian coordinates, where the device is an origin.
     """
     def __init__(self, listofcartesianpoints = []):
-        self.pointlist = listofcartesianpoints
         self.objectType = "map"
+        self.pointlist = listofcartesianpoints
+        self.xlist = []
+        self.ylist = []
+        
+
+        for spoint in self.pointlist:
+            xtemp, ytemp = spoint.getCartesian()
+            self.xlist.append(xtemp)
+            self.ylist.append(xtemp)
 
     def createMap(self, listofcartesianpoints):
         """
         Creates a proper map with straight walls from given list.
+        Returns two lists, one consists of x values, one of y values.
         """
-        return mappedPoints
+        for spoint in self.pointlist:
+            xtemp, ytemp = spoint.getCartesian()
+            self.xlist.append(xtemp)
+            self.ylist.append(xtemp)
+        return (self.xlist, self.ylist)
 
-    def getQImage(self, scale = 0): #TODO decide on default value based on the size of the screen
+    def getQImage(self): #TODO incorporate the scaling
         """
         Returns scaled QImage of the map
         """
+        #TODO better determine the dimensions of the map, FIXME fix drawing the map
+        #TODO add drawing where the device is?
+        width = int(5 * max(self.xlist))
+        height = int(5 * max(self.ylist))
+
+        mapImage = QImage(width, height, QImage.Format_RGB32)
+        mapImage.fill(Qt.white)
+
+        painter = QPainter(mapImage)
+        pen = QPen(Qt.blue, 5, Qt.SolidLine)
+        painter.setPen(pen)
+
+        for it in range(len(self.xlist)-1):
+            painter.drawLine(self.xlist[it], self.ylist[it], self.xlist[it+1], self.ylist[it+1])
+        painter.drawLine(self.xlist[-1], self.ylist[-1], self.xlist[0], self.ylist[0])
+        #painter.drawPoint(0, 0)#just for testing
         return mapImage
 
 
@@ -44,7 +78,7 @@ class DataProcessing:
     One instance class to handle data processing such as calculating errors,
     average, distance, create a map
     """
-    error_motor_angle = 0.01 #TODO get a correct value
+    error_motor_angle = 0.045 #TODO verify the value
     def __init__(self):
         pass
     
