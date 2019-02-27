@@ -1,21 +1,17 @@
-from hardwarecontrol import *
+from hardwarecontrol import HardwareControl
 
-motor = StepMotor()
+hardware = HardwareControl()
 cont = True
 while cont == True:
-    print("Specify number of steps, only integers. 1 step = 0.9 degrees. \n If you want to exit input: exit")    
+    print("Specify number of steps, only integers. 1 step = 0.05625 degrees. \n If you want to set current angle to absolute 0 input: cal \n If you want to exit input: exit")    
     innum = input(">> ")
 
     if innum == "exit":
         cont = False
+    elif innum == "cal":
+        hardware.calibrateMotor()
+        print("Calibrated")
     else:
         stepnum = int(innum)
-        
-        motor.turnbystep(stepnum)
+        hardware.turnMotor(stepnum, True)
         print("Moved")
-        # print("Do you want to continue? (y/n)")
-        # val = input(">> ")
-        # if val == "y":
-        #     cont = True
-        # else:
-        #     cont = False

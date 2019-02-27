@@ -1,4 +1,5 @@
-from gpiozero import DigitalOutputDevice
+from gpiozero.pins.mock import MockFactory
+from gpiozero import Device, DigitalOutputDevice
 import time
 
 class StepMotor:
@@ -6,12 +7,14 @@ class StepMotor:
     One instance class to control motor via gpio 
     """
     WAIT_TIME = .001
-    STEP_DEGREE = 0.9 #TODO change to true, lower value
-    def __init__(self):
+    STEP_DEGREE = 0.05625 #uncertainty is ~0.045
+    def __init__(self, currentangle=0):
         """
         Motor Setup.
         Pin layout available on https://gpiozero.readthedocs.io/en/stable/recipes.html
         """
+        #TODO comment out next line if working on Raspberry Pi !!!!!!!!
+        Device.pin_factory = MockFactory() 
         self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
@@ -22,33 +25,37 @@ class StepMotor:
         self.vcc.on() #VCC = 1
         self.stck.on() #STCK = 0
 
-        self.angle = 0 #absolute angle
+        self.angle = currentangle #current angle of the motor
         self.direction = 1 #1 for right turn, -1 for left turn.
 
-    def turnbystep(self, stepnum=5, steptime=WAIT_TIME): #TODO make it turn backwards if stepnum <0, make 2 speeds 
+    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME): #TODO make it turn backwards if stepnum <0, make 2 speeds 
         """
-        Move by specified amount of steps, 1 step is 0.9 degrees
+        Move by specified amount of steps, 1 step is 0.05625 degrees
         1 step is 1 full clock, min high time is 1 ms.
+        return current angle of motor
         """
+        if stepnum >= 0 and self.direction == -1:
+            self.dir.off() #right turn DIR = 0
+            self.direction = 1
+        elif stepnum <= 0 and self.direction == 1:
+            self.dir.on() #left turn DIR = 1
+            self.direction = -1
+
+
         if steptime < self.WAIT_TIME:
             steptime = self.WAIT_TIME
+
         stepnum = abs(stepnum)
+
         for it in range(stepnum):
             self.stck.on()
             time.sleep(steptime)
             self.stck.off()
             time.sleep(steptime)
-            self.motangle = self.angle + self.STEP_DEGREE*self.direction
 
-    def changedirection(self):
-        """
-        Change the direction of motor movement.
-        """
-        self.direction = -self.direction
-        if self.direction >= 0:
-            self.dir.off()
-        else:
-            self.dir.on()
+        self.angle = self.angle + self.STEP_DEGREE*self.direction*stepnum
+        return self.angle
+
 
 
 
@@ -73,22 +80,23 @@ class HardwareControl:
         Setup Motor and TODO Lidar
         """
         self.Motor = StepMotor()
-        self.motorangle
+        #self.motorangle = self.Motor.angle
 
-    def turnMotor(self, degrees):
+    def turnMotor(self, degrees, stepInsteadofDeg = False): #TODO add speed of turning
         """
         Turns motor and returns the angle TODO(check how it actually should work)
         """
-        if degrees < 0:
-            self.Motor.changedirection()
-            
-        stepnum = abs(degrees / self.Motor.STEP_DEGREE)
-        self.motorangle = self.motorangle + self.Motor.STEP_DEGREE*self.Motor.direction
-        self.Motor.turnbystep(stepnum)
-        
+        if stepInsteadofDeg:
+            stepnum = int(degrees)
+        else:
+            stepnum = int(degrees / self.Motor.STEP_DEGREE)
+
+        motangle = self.Motor.turnbyStep(stepnum)
+        return motangle
 
     def calibrateMotor(self):
         """
         Changes the absolute motor angle to the current position of motor
         """
-        self.motorangle = 0
+        self.Motor.angle = 0
+        
