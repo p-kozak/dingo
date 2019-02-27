@@ -93,12 +93,13 @@ class Control(QObject):
         return
 
     def measureDistance(self):
-        point = Point()
-        point.value = 2137
-        point.objectType = "point"
-        point.angle = 21
-        point.error = 37
-        self.sendPoint(point)
+        #test case
+        # point = Point()
+        # point.value = 2137
+        # point.objectType = "point"
+        # point.angle = 21
+        # point.error = 37
+        # self.sendPoint(point)
         """Measures distance to the object"""
         return
     
@@ -107,12 +108,13 @@ class Control(QObject):
         return
 
     def calculateWidth(self):
-        point = Point()
-        point.value = 6
-        point.objectType = "width"
-        point.angle = 56
-        point.error = 43
-        self.sendPoint(point)
+        #test case
+        # point = Point()
+        # point.value = 6
+        # point.objectType = "width"
+        # point.angle = 56
+        # point.error = 43
+        # self.sendPoint(point)
 
         """Calls getWidth() which returns distanmce bewteen last 2 measured points"""
         return 
