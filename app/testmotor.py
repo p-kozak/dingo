@@ -3,7 +3,7 @@ from hardwarecontrol import *
 motor = StepMotor()
 cont = True
 while cont == True:
-    print("Specify number of steps, only integers. 1 step = 0.9 degrees. \n If you want to exit input: exit")    
+    print("Specify number of steps, only integers. 1 step = 0.05625 degrees. \n If you want to exit input: exit")    
     innum = input(">> ")
 
     if innum == "exit":
@@ -11,11 +11,5 @@ while cont == True:
     else:
         stepnum = int(innum)
         
-        motor.turnbystep(stepnum)
+        motor.turnbyStep(stepnum)
         print("Moved")
-        # print("Do you want to continue? (y/n)")
-        # val = input(">> ")
-        # if val == "y":
-        #     cont = True
-        # else:
-        #     cont = False
