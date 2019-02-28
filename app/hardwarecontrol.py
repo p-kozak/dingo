@@ -22,9 +22,9 @@ class StepMotor:
         self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
-        self.mode2 = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, MODE2 = 1
-        self.stck = DigitalOutputDevice(6, initial_value = True) #pin BOARD31, STCK = 1
-        self.dir = DigitalOutputDevice(5) #pin BOARD29, DIR = 0
+        self.mode2 = DigitalOutputDevice(20, initial_value = True) #pin BOARD38, MODE2 = 1
+        self.stck = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, STCK = 1
+        self.dir = DigitalOutputDevice(16) #pin BOARD36, DIR = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.vcc.on() #VCC = 1
         self.stck.on() #STCK = 0
