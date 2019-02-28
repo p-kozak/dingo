@@ -10,8 +10,8 @@ from datadisplay import DataDisplay
 
 
 class MainWindow(QMainWindow):
-
-	#Signals which go to control. They have to be declared here due to limitations of the PyQt5
+	
+		#Signals which go to control. They have to be declared here due to limitations of the PyQt5
 	#https://stackoverflow.com/questions/2970312/pyqt4-qtcore-pyqtsignal-object-has-no-attribute-connect
 	#well explained in the link above
 	toggleLaserSignal = pyqtSignal()
@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
 	measureDistanceSignal = pyqtSignal()
 	setAngleToZeroSignal = pyqtSignal()
 	calculateWidthSignal = pyqtSignal()
+	sendSpeedSignal = pyqtSignal(int)
 
 
 	def __init__(self, parent = None):
@@ -83,7 +84,9 @@ class MainWindow(QMainWindow):
 		self.addButtonsToControlGrid()
 		self.addDisplaysToControlGrid()
 		self.initialiseVariablesToZero()
-		self.addSliderToControlGrid()
+		self.addMotorSpeedControls()
+		self.initialiseSpeedVariable()
+		#self.addSliderToControlGrid()
 
 
 		return
@@ -174,12 +177,17 @@ class MainWindow(QMainWindow):
 		self.lastWidth = 0
 		return
 
+	def initialiseSpeedVariable(self):
+		self.speed = 5
+		return
+
 	def updateDisplays(self):
 		self.boxDistanceLast.setText("Last distance: " + str(self.lastDistance) )
 		self.boxAngleLast.setText("Last angle: " + str(self.lastAngle))
 		self.boxDistanceFormer.setText("Former distance: " + str(self.formerDistance))
 		self.boxAngleFormer.setText("Former angle: " + str(self.formerAngle))
 		self.boxWidth.setText("Last width: " + str(self.lastWidth))
+		self.boxSpeed.setText("Motor speed: " + str(self.speed))
 		return
 
 
@@ -209,17 +217,23 @@ class MainWindow(QMainWindow):
 		self.boxWidth.setReadOnly(True)
 		self.controlLayout.addWidget(self.boxWidth,2,2)
 
+		self.boxSpeed = QLineEdit()
+		self.boxSpeed.setFixedHeight(40)
+		self.boxSpeed.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxSpeed,5,1)
+
 		return 
 
 	def addSliderToControlGrid(self):
 		self.slider = QSlider()
+		self.slider.setRange(1,10)
 		self.slider.setTickPosition(1)
 		self.slider.setTickInterval(10)
 		self.slider.setSingleStep(1)
 		self.slider.setOrientation(1)
 
 		self.controlLayout.addWidget(self.slider,5,0,1,2)
-		return 
+		return
 
 	def addButtonsToControlGrid(self):
 		buttonToggleLaser = QPushButton("Toggle laser")
@@ -271,6 +285,20 @@ class MainWindow(QMainWindow):
 
 		return 
 
+	def addMotorSpeedControls(self):
+		buttonDecreaseSpeed = QPushButton("---")
+		buttonDecreaseSpeed.setFixedHeight(40)
+		buttonDecreaseSpeed.clicked.connect(self.buttonDecreaseSpeedClicked)
+		self.controlLayout.addWidget(buttonDecreaseSpeed,5,0)
+
+
+		buttonIncreaseSpeed = QPushButton("+++")
+		buttonIncreaseSpeed.setFixedHeight(40)
+		buttonIncreaseSpeed.clicked.connect(self.buttonIncreaseSpeedClicked)
+		self.controlLayout.addWidget(buttonIncreaseSpeed,5,2)
+
+		return
+
 	def defineSignals(self):
 		#gui -> control
 		self.toggleLaserSignal.connect(self.controlThreadObject.toggleLaser)
@@ -281,6 +309,7 @@ class MainWindow(QMainWindow):
 		self.measureDistanceSignal.connect(self.controlThreadObject.measureDistance)
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
+		self.sendSpeedSignal.connect(self.controlThreadObject.receiveSpeedValue)
 
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
@@ -289,9 +318,7 @@ class MainWindow(QMainWindow):
 		return
 
 	def buttonToggleLaserClicked(self):
-		qDebug("dupa wojtka")
 		self.toggleLaserSignal.emit()
-	
 		return 
 
 	def buttonMeasureClicked(self):
@@ -327,6 +354,24 @@ class MainWindow(QMainWindow):
 	def buttonMoveLeftReleased(self):
 		#Slot
 		self.moveLeftStopSignal.emit()
+		return
+	def buttonIncreaseSpeedClicked(self):
+		if self.speed >= 10:
+			return
+		else:
+			self.speed +=1
+			self.sendSpeedSignal.emit(self.speed)
+			self.updateDisplays()
+		return
+
+
+	def buttonDecreaseSpeedClicked(self):
+		if self.speed <= 1:
+			return
+		else:
+			self.speed -=1
+			self.sendSpeedSignal.emit(self.speed)
+			self.updateDisplays()
 		return
 
 	def buttonGetWidthPressed(self):
