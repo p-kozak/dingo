@@ -84,7 +84,7 @@ cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
 cfginttrigger = [0x00, 0x00, 0x01, 0x40]
 cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
-class LIDAR:   
+class LidarSensor:   
     def __init__(self, serport='/dev/ttyS0'):
         self.ser = serial.Serial(port=serport, 
                    baudrate = 115200,
