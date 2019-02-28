@@ -84,10 +84,7 @@ cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
 cfginttrigger = [0x00, 0x00, 0x01, 0x40]
 cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
-class Lidar:   
-    """
-    One instance of class to contorl lidar
-    """
+class LIDAR:   
     def __init__(self, serport='/dev/ttyS0'):
         self.ser = serial.Serial(port=serport, 
                    baudrate = 115200,
@@ -139,22 +136,25 @@ class Lidar:
             while dist > 12000: # any value outside the range of 300-12000 is invalid
                 self.ser.flushInput()
                 s = self.ser.read(9)
-                if int(s[0]) == 0x59 and int(s[1]) == 0x59:
+                if int(s[0]) == 0x59 and int(s[1]) == 0x59: # check that message contains data
                     # calculate checksum
                     checksum = 0
                     for i in range(8):
                         checksum += int(s[i])    
-                    if checksum & 0xFF != int(s[8]):
-                        # checksum mismatch - invalid result
-                        dist = 65535
-                    else:
+                    if checksum & 0xFF == int(s[8]): # checksum is valid
                         distl = int(s[2]) & 0xFF
                         disth = int(s[3]) & 0xFF
-                        dist = (disth<<8) + distl
+                        dist = (disth<<8) + distl - self.offset
+                        if (dist < 300):
+                            dist = 300
                         
             dists.append(dist)
             
         return dists
+
+    def calibrate(self, actualdist):
+        measureddists = self.getdata()
+        self.offset = actualdist - sum(measureddists)/len(measureddists)
 
 
 
@@ -170,6 +170,11 @@ class HardwareControl:
         Setup Motor and TODO Lidar
         """
         self.Motor = StepMotor()
+
+        self.Lidar = LidarSensor()
+        self.Lidar.configure()
+
+        self.Laser = DigitalOutputDevice(21) #BOARD21
         #self.motorangle = self.Motor.angle
 
     def turnMotor(self, degrees, stepInsteadofDeg = False): #TODO add speed of turning
@@ -190,4 +195,18 @@ class HardwareControl:
         Changes the absolute motor angle to the current position of motor
         """
         self.Motor.angle = 0
+
+    def getDistance(self):
+        """
+        returns the distances in a list
+        """
+        lvalues = self.Lidar.getdata()
+        return lvalues
+
+    def toggleLaser(self):
+        if self.Laser.value == 1:
+            self.Laser.off()
+        else:
+            self.Laser.on()
+
         

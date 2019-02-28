@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, qDebug, pyqtSignal
 from hardwarecontrol import HardwareControl
-from dataprocessing import *
+from dataprocessing import Point, Map, DataProcessing
 
 
 
@@ -18,80 +18,53 @@ class Control(QObject):
         self.angleabs = 0
         self.anglecurrent = 0
         self.prevpoint = Point()
-        self.prevprecpoint = Point()
-        self.hcontrol = HardwareControl()
-
-
-    def getLidar(self):
-        """
-        Obtains single value of measurement from LIDAR sensor
-        """
-        value_from_LIDARsensor = 0
-        return value_from_LIDARsensor
-
-    def moveMotorBynStep(self, stepnum):
-        """
-        Moves motor by number of basic steps
-        """
-        angle_moved_by = 0
-        return angle_moved_by
-
-
-    def getDistance(self, samplesize=10):
-        """
-        takes n = 10 ( //TODO specify appropiate number)
-        measurements and returns them as a list
-        """
-        l = []
-        for it in range(samplesize):
-            l[it] = 0
-        return l
-
-    def calibrateMotor(self):
-        """
-        Sets current absolute angle to 0
-        """
-        self.angleabs = 0
-        self.anglecurrent = 0
-        return
+        self.prevprevpoint = Point()
+        self.hardware = HardwareControl()
+        self.data = DataProcessing()
+        self.motormoving = False
     
- 
-        
-    def getWidth(self, A, B):
-        """
-        Accepts class point as arguments
-        Calculates the distance between 2 points and error of the calculation.
-        Returns both values.
-        """
-        width = 0
-        errorwidth = 0
-        return (width, errorwidth)
-
-      
 
 
 	#These are slots which receive from engine TODO
     def toggleLaser(self):
-        """Toggles the laser on and off"""		
+        """Toggles the laser on and off"""
+        self.hardware.toggleLaser()		
         return 
 
     def moveRightStart(self):
         """Starts movement of motor to the right until moveStop() is called"""
+        self.motormoving = True
+        while self.motormoving:
+            self.hardware.turnMotor(5, stepInsteadofDeg=True)
         return
 
     def moveRightStop(self):
         """Stops movement of motor"""
+        self.motormoving = False
         return
 
     def moveLeftStart(self):
         """Starts movement of motor to the left until moveStop() is called"""
+        self.motormoving = True
+        while self.motormoving:
+            self.hardware.turnMotor(5, stepInsteadofDeg=True)
         return
 
     def moveLeftStop(self):
         """Stops movement of motor"""
+        self.motormoving = False
         return
 
     def measureDistance(self):
+        """Measures distance to the object, returns point to gui"""
+        lval = self.hardware.getDistance()
+        dist, error = self.data.analyseValues(lval)
+        angle = self.hardware.Motor.angle
+        self.prevprevpoint = self.prevpoint
+        self.prevpoint = Point(dist, angle, error)
+
+        self.sendPoint(self.prevpoint)
+
         #test case
         # point = Point()
         # point.value = 2137
@@ -99,14 +72,19 @@ class Control(QObject):
         # point.angle = 21
         # point.error = 37
         # self.sendPoint(point)
-        """Measures distance to the object"""
+        
         return
     
     def setAngleToZero(self):
         """Calibrates absolute angle to be set at the current position of the motor"""
+        self.hardware.calibrateMotor()
         return
 
     def calculateWidth(self):
+        """Calculates width between last two points. Returns value to gui"""
+        val, error = self.data.getWidth(self.prevpoint, self.prevprevpoint)
+        p = Point(val, 0, error, True)
+        self.sendPoint(p)
         #test case
         # point = Point()
         # point.value = 6
@@ -114,16 +92,20 @@ class Control(QObject):
         # point.angle = 56
         # point.error = 43
         # self.sendPoint(point)
-
-        """Calls getWidth() which returns distanmce bewteen last 2 measured points"""
         return 
 
 
     def sendPoint(self, point):
+        """
+        Sends point to gui
+        """
         self.sendPointSignal.emit(point)
         return
 
     def sendMap(self, map):
+        """
+        Sends map to gui
+        """
         self.sendMapSignal.emit(map)
         return 
 
