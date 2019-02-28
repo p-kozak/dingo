@@ -3,6 +3,7 @@ from PyQt5.QtCore import QThread, qDebug, pyqtSignal
 from control import *
 from PyQt5 import QtGui
 from comms import Comms
+from datadisplay import DataDisplay
 
 
 
@@ -37,7 +38,8 @@ class MainWindow(QMainWindow):
 		self.updateDisplays() #delete later
 
 		self.displayPikaPika()
-		
+
+
 		self.show()
 
 
@@ -127,10 +129,10 @@ class MainWindow(QMainWindow):
 		self.stackedLayout.addWidget(self.imagesWidget)
 
 	def setUpDataDisplayWidget(self):
-		self.dataDisplayWidget = QWidget()
-		self.dataDisplayWidget.setMinimumSize(800,380)
-		self.dataDisplayLayout = QVBoxLayout()
-		self.dataDisplayWidget.setLayout(self.dataDisplayLayout)
+		self.dataDisplayWidget = DataDisplay()
+		# self.dataDisplayWidget.setMinimumSize(800,380)
+		# self.dataDisplayLayout = QVBoxLayout()
+		# self.dataDisplayWidget.setLayout(self.dataDisplayLayout)
 		self.stackedLayout.addWidget(self.dataDisplayWidget)
 		return
 
@@ -151,6 +153,7 @@ class MainWindow(QMainWindow):
 		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
 		self.menuLayout.addWidget(buttonImages)
 
+
 		return
 
 	def switchStackedLayoutWidget(self, widget):
@@ -159,6 +162,7 @@ class MainWindow(QMainWindow):
 		#https://stackoverflow.com/questions/6784084/how-to-pass-arguments-to-functions-by-the-click-of-button-in-pyqt
 		#More information on stack 
 		def functionFactory():
+			print("here i am")
 			self.stackedLayout.setCurrentWidget(widget)
 		return functionFactory
 
@@ -281,7 +285,6 @@ class MainWindow(QMainWindow):
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
 		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
-		self.controlThreadObject.sendWidthSignal.connect(self.receiveWidth)
 
 		return
 
@@ -294,6 +297,11 @@ class MainWindow(QMainWindow):
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 
 		self.measureDistanceSignal.emit()
+		# point = Point()
+		# point.value = 6
+		# point.angle = 56
+		# point.error = 43
+		# self.dataDisplayWidget.addPointToDisplay(point)
 		return
 
 	def buttonSetRelativeAngleToZeroClicked(self):
@@ -324,6 +332,12 @@ class MainWindow(QMainWindow):
 	def buttonGetWidthPressed(self):
 		#Slot. Uses two last measurements and returns distance between these points  
 		self.calculateWidthSignal.emit()
+		# point = Point()
+		# point.value = 6
+		# point.objectType = "width"
+		# point.angle = 56
+		# point.error = 43
+		# self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
 
 	def buttonBluetoothConnectClicked(self):
@@ -345,14 +359,35 @@ class MainWindow(QMainWindow):
 		return 
 
 	def receivePoint(self, point):
-
+		if point.objectType == "point":
+			self.updateLastDistance(point)
+			self.dataDisplayWidget.addMeasurementToDisplay(point)
+		elif point.objectType == "width":
+			self.updateWidht(point)
+			self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
 
-	def receiveWidth(self, width):
-		print(width)
-
-		return
 
 	def receiveMap(self, map):
 
 		return 
+
+	def updateLastDistance(self, point):
+		#Move last to former
+		self.formerDistance = self.lastDistance
+		self.formerAngle = self.lastAngle
+
+		self.lastDistance = point.value
+		self.lastAngle = point.angle
+
+		self.updateDisplays()
+
+		return
+
+	def updateWidht(self, point):
+		self.lastWidth = point.value
+		self.updateDisplays()
+		return
+
+
+
