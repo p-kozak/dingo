@@ -91,6 +91,10 @@ class Control(QObject):
         """Stops movement of motor"""
         return
 
+    def receiveSpeedValue(self, speed):
+        #Receives current speed value from GUI
+        return
+
     def measureDistance(self):
         #test case
         # point = Point()
