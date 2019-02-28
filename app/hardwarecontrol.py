@@ -84,7 +84,7 @@ cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
 cfginttrigger = [0x00, 0x00, 0x01, 0x40]
 cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
-class LIDAR:   
+class Lidar:   
     """
     One instance of class to contorl lidar
     """
