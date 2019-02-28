@@ -68,11 +68,10 @@ class Control(QObject):
         errorwidth = 0
         return (width, errorwidth)
 
-
       
 
 
-	#These are slots which receive from engine
+	#These are slots which receive from engine TODO
     def toggleLaser(self):
         """Toggles the laser on and off"""		
         return 

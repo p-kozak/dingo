@@ -1,5 +1,6 @@
 from gpiozero.pins.mock import MockFactory
 from gpiozero import Device, DigitalOutputDevice
+import serial
 import time
 
 class StepMotor:
@@ -8,10 +9,13 @@ class StepMotor:
     """
     WAIT_TIME = .001
     STEP_DEGREE = 0.05625 #uncertainty is ~0.045
+    BIG_STEP_DEGREE = 0.9
     def __init__(self, currentangle=0):
         """
         Motor Setup.
         Pin layout available on https://gpiozero.readthedocs.io/en/stable/recipes.html
+        MODE1 = 1, MODE2 = 1 => microstep
+        MODE1 = 0, MODE2 = 0 => normalstep
         """
         #TODO comment out next line if working on Raspberry Pi !!!!!!!!
         Device.pin_factory = MockFactory() 
@@ -27,13 +31,22 @@ class StepMotor:
 
         self.angle = currentangle #current angle of the motor
         self.direction = 1 #1 for right turn, -1 for left turn.
+        self.stepmicro = True #True for micro step, False for normal step
 
-    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME): #TODO make it turn backwards if stepnum <0, make 2 speeds 
+    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
         """
         Move by specified amount of steps, 1 step is 0.05625 degrees
         1 step is 1 full clock, min high time is 1 ms.
         return current angle of motor
         """
+        if stepsize == 0 and self.stepmicro == False: #set the microstep
+            self.mode1.on()
+            self.mode2.on()
+        if stepsize != 0 and self.stepmicro == True: #set the normal step
+            self.mode1.off()
+            self.mode2.off()
+
+
         if stepnum >= 0 and self.direction == -1:
             self.dir.off() #right turn DIR = 0
             self.direction = 1
@@ -59,14 +72,89 @@ class StepMotor:
         return self.angle
 
 
+#constants for Lidar() TODO try to put them inside the class
+cfgheader = [0x42, 0x57, 0x02, 0x00]  
+cfgenter = [0x00, 0x00, 0x01, 0x02]
+cfgexit = [0x00, 0x00, 0x00, 0x02]
+cfgrst = [0xFF, 0xFF, 0xFF, 0xFF]
+cfginterval = [0x01, 0x00, 0x00, 0x07]
+cfgmm = [0x00, 0x00, 0x00, 0x1A]
+cfgcm = [0x00, 0x00, 0x01, 0x1A]
+cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
+cfginttrigger = [0x00, 0x00, 0x01, 0x40]
+cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
+class LIDAR:   
+    """
+    One instance of class to contorl lidar
+    """
+    def __init__(self, serport='/dev/ttyS0'):
+        self.ser = serial.Serial(port=serport, 
+                   baudrate = 115200,
+                   parity=serial.PARITY_NONE,
+                   stopbits=serial.STOPBITS_ONE,
+                   bytesize=serial.EIGHTBITS)
 
-class Lidar:
-    """
-    One instance class to control the lidar
-    """
-    def __init__(self):
-        pass
+        self.resultsmax = 5 # number of measurements per data packet
+        self.offset = 50 # calibration offset
+
+    def configure(self):
+        self.reset()
+        time.sleep(1) # wait to ensure command acknowledged
+        self.setdistunit(distunit="mm")
+        time.sleep(0.5)   
+
+    def sendcmd(self, cmdbytes):
+        cmdbytearray = bytearray(cmdbytes)
+        self.ser.write(cmdbytearray)
+    
+    def reset(self):
+        cmd = cfgheader + cfgrst
+        self.sendcmd(cmd)
+
+    def setinterval(self, interval=10):
+        cmd = cfgheader + cfginterval
+        cmd[5] = round(interval, -1) & 0xFF
+        print("value: " + str(hex(cmd[5])))
+        self.sendcmd(cmd)
+
+    def setdistunit(self, distunit="mm"):
+        if distunit == "cm":
+            cmd = cfgheader + cfgcm
+        else:
+            cmd = cfgheader + cfgmm
+        self.sendcmd(cmd)
+
+    def settriggermode(self, triggermode="int"):
+        if triggermode == "ext":
+            cmd = cfgheader + cfgexttrigger
+        else:
+            cmd = cfgheader + cfginttrigger
+        self.sendcmd(cmd)
+
+    def getdata(self):
+        dists = []
+        for n in range(self.resultsmax):
+            dist = 65535
+            while dist > 12000: # any value outside the range of 300-12000 is invalid
+                self.ser.flushInput()
+                s = self.ser.read(9)
+                if int(s[0]) == 0x59 and int(s[1]) == 0x59:
+                    # calculate checksum
+                    checksum = 0
+                    for i in range(8):
+                        checksum += int(s[i])    
+                    if checksum & 0xFF != int(s[8]):
+                        # checksum mismatch - invalid result
+                        dist = 65535
+                    else:
+                        distl = int(s[2]) & 0xFF
+                        disth = int(s[3]) & 0xFF
+                        dist = (disth<<8) + distl
+                        
+            dists.append(dist)
+            
+        return dists
 
 
 
