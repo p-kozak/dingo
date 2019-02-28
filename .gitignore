@@ -1,3 +1,5 @@
 #ignore __pycache__ and .vscode
 app/__pycache__/
 app/.vscode
+#ignore test images in test folder
+app/test/

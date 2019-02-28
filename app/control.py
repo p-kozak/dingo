@@ -5,7 +5,7 @@ from dataprocessing import *
 
 
 class Control(QObject):
-
+ 
     #Signals for sending data to gui
     sendPointSignal = pyqtSignal(Point)
     sendMapSignal = pyqtSignal(Map)
@@ -67,11 +67,10 @@ class Control(QObject):
         errorwidth = 0
         return (width, errorwidth)
 
-
       
 
 
-	#These are slots which receive from engine
+	#These are slots which receive from engine TODO
     def toggleLaser(self):
         """Toggles the laser on and off"""		
         return 
