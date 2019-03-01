@@ -58,6 +58,10 @@ class Control(QObject):
         return
         
 
+    def receiveSpeedValue(self, speed):
+        #Receives current speed value from GUI
+        return
+
     def measureDistance(self):
         """Measures distance to the object, returns point to gui"""
         lval = self.hardware.getDistance()
