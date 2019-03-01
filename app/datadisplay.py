@@ -17,7 +17,6 @@ class DataDisplay(QWidget):
 		self.scrollArea = QScrollArea()
 		self.scrollArea.setWidgetResizable(True)
 		#self.scrollArea.setMinimumSize(800,380)
-		print("dupa 5")
 		return
 
 	def addGridToScroll(self):
@@ -46,7 +45,7 @@ class DataDisplay(QWidget):
 
 	def addPointToDisplay(self,object):
 		self.addTimeBoxToDisplay()
-		self.addTypeBoxToDisplay("POINT")
+		self.addTypeBoxToDisplay("DISTANCE")
 		self.addDistanceBoxToDisplay(object.value)
 		self.addAngleBoxToDisplay(object.angle)
 		self.addErrorBoxToDisplay(object.error)
@@ -82,7 +81,7 @@ class DataDisplay(QWidget):
 		boxDistance.setFixedHeight(30)
 		boxDistance.setFixedWidth(90)
 		boxDistance.setReadOnly(True)
-		boxDistance.setText("DISTANCE: " + str(value))
+		boxDistance.setText("Distance: " + str(value))
 		self.gridDataLayout.addWidget(boxDistance, self.gridDataLayout.rowCount() -1 ,2)
 		return 
 
@@ -91,7 +90,7 @@ class DataDisplay(QWidget):
 		boxAngle.setFixedHeight(30)
 		boxAngle.setFixedWidth(90)
 		boxAngle.setReadOnly(True)
-		boxAngle.setText("ANGLE: " + str(angle))
+		boxAngle.setText("Angle: " + str(angle))
 		self.gridDataLayout.addWidget(boxAngle, self.gridDataLayout.rowCount() -1 ,3)
 		return
 

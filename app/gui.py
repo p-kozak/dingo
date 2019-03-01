@@ -4,6 +4,7 @@ from control import *
 from PyQt5 import QtGui
 from comms import Comms
 from datadisplay import DataDisplay
+import os, signal
 
 
 
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
 	setAngleToZeroSignal = pyqtSignal()
 	calculateWidthSignal = pyqtSignal()
 	sendSpeedSignal = pyqtSignal(int)
+	connectBluetoothSignal = pyqtSignal()
 
 
 	def __init__(self, parent = None):
@@ -39,7 +41,6 @@ class MainWindow(QMainWindow):
 		self.updateDisplays() #delete later
 
 		self.displayPikaPika()
-
 
 		self.show()
 
@@ -86,6 +87,7 @@ class MainWindow(QMainWindow):
 		self.initialiseVariablesToZero()
 		self.addMotorSpeedControls()
 		self.initialiseSpeedVariable()
+		self.addButtonUpdate()
 		#self.addSliderToControlGrid()
 
 
@@ -231,7 +233,6 @@ class MainWindow(QMainWindow):
 		self.slider.setTickInterval(10)
 		self.slider.setSingleStep(1)
 		self.slider.setOrientation(1)
-
 		self.controlLayout.addWidget(self.slider,5,0,1,2)
 		return
 
@@ -285,6 +286,13 @@ class MainWindow(QMainWindow):
 
 		return 
 
+	def addButtonUpdate(self):
+		buttonUpdate = QPushButton("UPdate")
+		buttonUpdate.setFixedHeight(40)
+		buttonUpdate.clicked.connect(self.killYourself)
+		self.controlLayout.addWidget(buttonUpdate,3,2)
+
+
 	def addMotorSpeedControls(self):
 		buttonDecreaseSpeed = QPushButton("---")
 		buttonDecreaseSpeed.setFixedHeight(40)
@@ -314,6 +322,9 @@ class MainWindow(QMainWindow):
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
 		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
+
+		#control -> comms
+		self.connectBluetoothSignal.connect(self.commsThreadObject.main)
 
 		return
 
@@ -387,6 +398,7 @@ class MainWindow(QMainWindow):
 
 	def buttonBluetoothConnectClicked(self):
 		#Slot
+		self.connectBluetoothSignal.emit()
 		return
 
 	def displayPikaPika(self):
@@ -405,6 +417,7 @@ class MainWindow(QMainWindow):
 
 	def receivePoint(self, point):
 		if point.objectType == "point":
+			self.commsThreadObject.response = "msg:" + str(object.value) + "," + str(object.angle)
 			self.updateLastDistance(point)
 			self.dataDisplayWidget.addMeasurementToDisplay(point)
 		elif point.objectType == "width":
@@ -433,6 +446,12 @@ class MainWindow(QMainWindow):
 		self.lastWidth = point.value
 		self.updateDisplays()
 		return
+
+	def killYourself(self):
+		pid = os.getpid()
+		os.kill(pid, signal.SIGKILL)
+		return
+
 
 
 
