@@ -36,11 +36,7 @@ class Map:
         self.xlist = []
         self.ylist = []
         
-
-        for spoint in self.pointlist:
-            xtemp, ytemp = spoint.getCartesian()
-            self.xlist.append(xtemp)
-            self.ylist.append(xtemp)
+        self.createMap(self.pointlist)
 
     def createMap(self, listofcartesianpoints):
         """
@@ -50,7 +46,7 @@ class Map:
         for spoint in self.pointlist:
             xtemp, ytemp = spoint.getCartesian()
             self.xlist.append(xtemp)
-            self.ylist.append(xtemp)
+            self.ylist.append(ytemp)
         return (self.xlist, self.ylist)
 
     def getQImage(self): #TODO incorporate the scaling

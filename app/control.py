@@ -24,7 +24,7 @@ class Control(QObject):
         self.motorTimer = QTimer(self)
         self.basemotorstep = 1
 
-        self.motorbasepause = 4
+        self.motorbasepause = 5
         self.motorpause = 5*self.motorbasepause
         
         self.motorTimer.timeout.connect(self.motorStep)

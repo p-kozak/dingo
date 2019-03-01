@@ -161,12 +161,6 @@ class StepMotor:
             self.angle = newangle    
         return self.angle
 
-        
-    def setDirection(self, dirctn):
-        if dirctn == 1:
-            self.direction = 1
-        elif dirctn == -1:
-            self.direction = -1
 
 
 
@@ -201,7 +195,7 @@ class HardwareControl:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
         steptime = steptime / 100
-        motangle = self.Motor.turnbyStep(stepnum, steptime)
+        motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 
 
