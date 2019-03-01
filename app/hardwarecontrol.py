@@ -3,74 +3,6 @@ from gpiozero import Device, DigitalOutputDevice
 import serial
 import time
 
-class StepMotor:
-    """
-    One instance class to control motor via gpio 
-    """
-    WAIT_TIME = .001
-    STEP_DEGREE = 0.05625 #uncertainty is ~0.045
-    BIG_STEP_DEGREE = 0.9
-    def __init__(self, currentangle=0):
-        """
-        Motor Setup.
-        Pin layout available on https://gpiozero.readthedocs.io/en/stable/recipes.html
-        MODE1 = 1, MODE2 = 1 => microstep
-        MODE1 = 0, MODE2 = 0 => normalstep
-        """
-        #TODO comment out next line if working on Raspberry Pi !!!!!!!!
-        Device.pin_factory = MockFactory() 
-        self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
-        time.sleep(self.WAIT_TIME) #wait 1 ms
-        self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
-        self.mode2 = DigitalOutputDevice(20, initial_value = True) #pin BOARD38, MODE2 = 1
-        self.stck = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, STCK = 1
-        self.dir = DigitalOutputDevice(16) #pin BOARD36, DIR = 0
-        time.sleep(self.WAIT_TIME) #wait 1 ms
-        self.vcc.on() #VCC = 1
-        self.stck.on() #STCK = 0
-
-        self.angle = currentangle #current angle of the motor
-        self.direction = 1 #1 for right turn, -1 for left turn.
-        self.stepmicro = True #True for micro step, False for normal step
-
-    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
-        """
-        Move by specified amount of steps, 1 step is 0.05625 degrees
-        1 step is 1 full clock, min high time is 1 ms.
-        return current angle of motor
-        """
-        if stepsize == 0 and self.stepmicro == False: #set the microstep
-            self.mode1.on()
-            self.mode2.on()
-        if stepsize != 0 and self.stepmicro == True: #set the normal step
-            self.mode1.off()
-            self.mode2.off()
-
-
-        if stepnum >= 0 and self.direction == -1:
-            self.dir.off() #right turn DIR = 0
-            self.direction = 1
-        elif stepnum <= 0 and self.direction == 1:
-            self.dir.on() #left turn DIR = 1
-            self.direction = -1
-
-        newangle =self.angle + self.STEP_DEGREE*self.direction*stepnum
-
-        if newangle < 200 and newangle > -200:
-            if steptime < self.WAIT_TIME:
-                steptime = self.WAIT_TIME
-
-            stepnum = abs(stepnum)
-
-            for it in range(stepnum):
-                self.stck.on()
-                time.sleep(steptime)
-                self.stck.off()
-                time.sleep(steptime)
-
-            self.angle = newangle    
-        return self.angle
-
 
 #constants for Lidar() TODO try to put them inside the class
 cfgheader = [0x42, 0x57, 0x02, 0x00]  
@@ -158,6 +90,92 @@ class LidarSensor:
 
 
 
+class StepMotor:
+    """
+    One instance class to control motor via gpio 
+    """
+    WAIT_TIME = .001
+    STEP_DEGREE = 0.05625 #uncertainty is ~0.045
+    BIG_STEP_DEGREE = 0.9
+    def __init__(self, currentangle=0):
+        """
+        Motor Setup.
+        Pin layout available on https://gpiozero.readthedocs.io/en/stable/recipes.html
+        MODE1 = 1, MODE2 = 1 => microstep
+        MODE1 = 0, MODE2 = 0 => normalstep
+        """
+        #TODO comment out next line if working on Raspberry Pi !!!!!!!!
+        Device.pin_factory = MockFactory() 
+        self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
+        time.sleep(self.WAIT_TIME) #wait 1 ms
+        self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
+        self.mode2 = DigitalOutputDevice(20, initial_value = True) #pin BOARD38, MODE2 = 1
+        self.stck = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, STCK = 1
+        self.dir = DigitalOutputDevice(16) #pin BOARD36, DIR = 0
+        time.sleep(self.WAIT_TIME) #wait 1 ms
+        self.vcc.on() #VCC = 1
+        self.stck.on() #STCK = 0
+
+        self.angle = currentangle #current angle of the motor
+        self.direction = 1 #1 for right turn, -1 for left turn.
+        self.stepmicro = True #True for micro step, False for normal step
+
+    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
+        """
+        Move by specified amount of steps, 1 step is 0.05625 degrees
+        1 step is 1 full clock, min high time is 1 ms.
+        return current angle of motor
+        """
+        if stepsize == 0 and self.stepmicro == False: #set the microstep
+            self.mode1.on()
+            self.mode2.on()
+        if stepsize != 0 and self.stepmicro == True: #set the normal step
+            self.mode1.off()
+            self.mode2.off()
+
+
+        if stepnum >= 0 and self.direction == -1:
+            self.dir.off() #right turn DIR = 0
+            self.direction = 1
+        elif stepnum <= 0 and self.direction == 1:
+            self.dir.on() #left turn DIR = 1
+            self.direction = -1
+
+        newangle =self.angle + self.STEP_DEGREE*self.direction*stepnum
+
+        if newangle < 200 and newangle > -200:
+            if steptime < self.WAIT_TIME:
+                steptime = self.WAIT_TIME
+
+            stepnum = abs(stepnum)
+
+            if self.stck.value == 1:
+                self.stck.off()
+
+            for it in range(stepnum):
+                self.stck.on()
+                time.sleep(steptime)
+                self.stck.off()
+                time.sleep(steptime)
+
+            self.angle = newangle    
+        return self.angle
+
+
+    def singleStep(self):
+        self.stck.on()
+        time.sleep(0.004)
+        self.stck.off()
+        time.sleep(0.004)
+        
+    def setDirection(self, dirctn):
+        if dirctn == 1:
+            self.direction = 1
+        elif dirctn == -1:
+            self.direction = -1
+
+
+
 
 class HardwareControl:
     """
@@ -190,6 +208,7 @@ class HardwareControl:
         motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 
+
     def calibrateMotor(self):
         """
         Changes the absolute motor angle to the current position of motor
@@ -208,5 +227,11 @@ class HardwareControl:
             self.Laser.off()
         else:
             self.Laser.on()
+
+    def singleMotorStep(self):
+        self.Motor.turnbyStep(2)
+        
+    def motorDirection(self, dirctn):
+        self.Motor.setDirection(dirctn)
 
         

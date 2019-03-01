@@ -1,17 +1,18 @@
-from PyQt5.QtCore import QObject, qDebug, pyqtSignal
+from PyQt5.QtCore import QObject, qDebug, pyqtSignal, QTimer
 from hardwarecontrol import HardwareControl
 from dataprocessing import Point, Map, DataProcessing
+import time
 
 
 
 class Control(QObject):
- 
-    #Signals for sending data to gui
-    sendPointSignal = pyqtSignal(Point)
-    sendMapSignal = pyqtSignal(Map)
     """
     One-instance class that handles processing of data and hardware interaction.
     """
+    #Signals for sending data to gui
+    sendPointSignal = pyqtSignal(Point)
+    sendMapSignal = pyqtSignal(Map)
+    
     
     def __init__(self):
         QObject.__init__(self)
@@ -22,8 +23,11 @@ class Control(QObject):
         self.hardware = HardwareControl()
         self.data = DataProcessing()
         self.motormoving = False
-    
 
+        self.motortimer = QTimer(self)
+        
+        self.motortimer.timeout.connect(self.motorpulse)
+    
 
 	#These are slots which receive from engine TODO
     def toggleLaser(self):
@@ -33,27 +37,35 @@ class Control(QObject):
 
     def moveRightStart(self):
         """Starts movement of motor to the right until moveStop() is called"""
-        self.motormoving = True
-        while self.motormoving:
-            self.hardware.turnMotor(5, stepInsteadofDeg=True)
-        return
+        #self.motormoving = True
+        #self.hardware.turnMotor(5, stepInsteadofDeg=True)
+        self.motortimer.stop()
+        self.hardware.motorDirection(1)
+        self.motortimer.start(10)
 
     def moveRightStop(self):
         """Stops movement of motor"""
-        self.motormoving = False
+        #self.motormoving = False
+        self.motortimer.stop()
         return
 
     def moveLeftStart(self):
         """Starts movement of motor to the left until moveStop() is called"""
-        self.motormoving = True
-        while self.motormoving:
-            self.hardware.turnMotor(5, stepInsteadofDeg=True)
-        return
+        #self.motormoving = True
+        #self.hardware.turnMotor(-5, stepInsteadofDeg=True)
+        self.motortimer.stop()
+        self.hardware.motorDirection(-1)
+        self.motortimer.start(10)
+
 
     def moveLeftStop(self):
         """Stops movement of motor"""
-        self.motormoving = False
+        #self.motormoving = False
+        self.motortimer.stop()
         return
+        
+    def motorpulse(self):
+        self.hardware.singleMotorStep()
 
     def measureDistance(self):
         """Measures distance to the object, returns point to gui"""
