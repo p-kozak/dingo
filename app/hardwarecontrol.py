@@ -105,7 +105,7 @@ class StepMotor:
         MODE1 = 0, MODE2 = 0 => normalstep
         """
         #TODO comment out next line if working on Raspberry Pi !!!!!!!!
-        Device.pin_factory = MockFactory() 
+        #Device.pin_factory = MockFactory() 
         self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
