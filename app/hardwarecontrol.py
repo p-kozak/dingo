@@ -189,8 +189,9 @@ class HardwareControl:
         self.Laser = DigitalOutputDevice(21) #BOARD21
         #self.motorangle = self.Motor.angle
 
-    def turnMotor(self, degrees, stepInsteadofDeg = False): #TODO add speed of turning
+    def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1): #TODO add speed of turning
         """
+        Steptime is in miliseconds.
         Turns motor and returns the new angle of the motor.
         The motor range is limited to 200 degrees both directions.
         """
@@ -199,7 +200,8 @@ class HardwareControl:
         else:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
-        motangle = self.Motor.turnbyStep(stepnum)
+        steptime = steptime / 100
+        motangle = self.Motor.turnbyStep(stepnum, steptime)
         return motangle
 
 
@@ -221,6 +223,5 @@ class HardwareControl:
             self.Laser.off()
         else:
             self.Laser.on()
-
 
         

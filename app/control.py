@@ -21,9 +21,16 @@ class Control(QObject):
         self.hardware = HardwareControl()
         self.data = DataProcessing()
 
-        self.motortimer = QTimer(self)
+        self.motorTimer = QTimer(self)
         self.basemotorstep = 1
-        self.motortimer.timeout.connect(self.motorStep)
+
+        self.motorbasepause = 4
+        self.motorpause = 5*self.motorbasepause
+        
+        self.motorTimer.timeout.connect(self.motorStep)
+
+    def __del__(self):
+        self.motorTimer.stop()
     
     def motorStep(self):
         self.hardware.turnMotor(self.basemotorstep, True)
@@ -36,30 +43,30 @@ class Control(QObject):
 
     def moveRightStart(self):
         """Starts movement of motor to the right until moveStop() is called"""
-        self.motortimer.stop()
+        self.motorTimer.stop()
         self.basemotorstep = 1
-        self.motortimer.start(10)
+        self.motorTimer.start(self.motorpause)
 
     def moveRightStop(self):
         """Stops movement of motor"""
-        self.motortimer.stop()
+        self.motorTimer.stop()
         return
 
     def moveLeftStart(self):
         """Starts movement of motor to the left until moveStop() is called"""
-        self.motortimer.stop()
+        self.motorTimer.stop()
         self.basemotorstep = -1
-        self.motortimer.start(10)
+        self.motorTimer.start(self.motorpause)
 
 
     def moveLeftStop(self):
         """Stops movement of motor"""
-        self.motortimer.stop()
+        self.motorTimer.stop()
         return
         
 
     def receiveSpeedValue(self, speed):
-        #Receives current speed value from GUI
+        self.motorpause = speed * self.motorbasepause
         return
 
     def measureDistance(self):
@@ -71,15 +78,6 @@ class Control(QObject):
         self.prevpoint = Point(dist, angle, error)
 
         self.sendPoint(self.prevpoint)
-
-        #test case
-        # point = Point()
-        # point.value = 2137
-        # point.objectType = "point"
-        # point.angle = 21
-        # point.error = 37
-        # self.sendPoint(point)
-        
         return
     
     def setAngleToZero(self):
@@ -92,13 +90,6 @@ class Control(QObject):
         val, error = self.data.getWidth(self.prevpoint, self.prevprevpoint)
         p = Point(val, 0, error, True)
         self.sendPoint(p)
-        #test case
-        # point = Point()
-        # point.value = 6
-        # point.objectType = "width"
-        # point.angle = 56
-        # point.error = 43
-        # self.sendPoint(point)
         return 
 
 
