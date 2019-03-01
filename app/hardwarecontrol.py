@@ -141,11 +141,8 @@ class StepMotor:
             self.dir.on() #left turn DIR = 1
             self.direction = -1
 
-        print(self.direction)
 
-        newangle =self.angle + (self.STEP_DEGREE * self.direction * stepnum)
-
-        print("newangle: ", newangle)
+        newangle = self.angle + self.STEP_DEGREE * stepnum
 
         if newangle < 200 and newangle > -200:
             if steptime < self.WAIT_TIME:
@@ -161,8 +158,7 @@ class StepMotor:
                 time.sleep(steptime)
                 self.stck.off()
                 time.sleep(steptime)
-            self.angle = newangle
-            print("self.angle:", self.angle)    
+            self.angle = newangle  
         return self.angle
 
 
