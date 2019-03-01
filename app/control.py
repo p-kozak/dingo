@@ -24,7 +24,7 @@ class Control(QObject):
         self.motorTimer = QTimer(self)
         self.basemotorstep = 1
 
-        self.motorbasepause = 4
+        self.motorbasepause = 5
         self.motorpause = 5*self.motorbasepause
         
         self.motorTimer.timeout.connect(self.motorStep)
@@ -66,6 +66,7 @@ class Control(QObject):
         
 
     def receiveSpeedValue(self, speed):
+        speed = 11 - speed #there are 10 levels of speed, max is 10
         self.motorpause = speed * self.motorbasepause
         return
 

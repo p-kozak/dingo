@@ -105,7 +105,7 @@ class StepMotor:
         MODE1 = 0, MODE2 = 0 => normalstep
         """
         #TODO comment out next line if working on Raspberry Pi !!!!!!!!
-        Device.pin_factory = MockFactory() 
+        #Device.pin_factory = MockFactory() 
         self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
@@ -141,7 +141,8 @@ class StepMotor:
             self.dir.on() #left turn DIR = 1
             self.direction = -1
 
-        newangle =self.angle + self.STEP_DEGREE*self.direction*stepnum
+
+        newangle = self.angle + self.STEP_DEGREE * stepnum
 
         if newangle < 200 and newangle > -200:
             if steptime < self.WAIT_TIME:
@@ -157,16 +158,9 @@ class StepMotor:
                 time.sleep(steptime)
                 self.stck.off()
                 time.sleep(steptime)
-
-            self.angle = newangle    
+            self.angle = newangle  
         return self.angle
 
-        
-    def setDirection(self, dirctn):
-        if dirctn == 1:
-            self.direction = 1
-        elif dirctn == -1:
-            self.direction = -1
 
 
 
@@ -201,7 +195,7 @@ class HardwareControl:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
         steptime = steptime / 100
-        motangle = self.Motor.turnbyStep(stepnum, steptime)
+        motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 
 
