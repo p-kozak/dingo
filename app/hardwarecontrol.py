@@ -161,12 +161,6 @@ class StepMotor:
             self.angle = newangle    
         return self.angle
 
-
-    def singleStep(self):
-        self.stck.on()
-        time.sleep(0.004)
-        self.stck.off()
-        time.sleep(0.004)
         
     def setDirection(self, dirctn):
         if dirctn == 1:
@@ -228,10 +222,5 @@ class HardwareControl:
         else:
             self.Laser.on()
 
-    def singleMotorStep(self):
-        self.Motor.turnbyStep(2)
-        
-    def motorDirection(self, dirctn):
-        self.Motor.setDirection(dirctn)
 
         

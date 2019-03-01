@@ -16,20 +16,19 @@ class Control(QObject):
     
     def __init__(self):
         QObject.__init__(self)
-        self.angleabs = 0
-        self.anglecurrent = 0
         self.prevpoint = Point()
         self.prevprevpoint = Point()
         self.hardware = HardwareControl()
         self.data = DataProcessing()
-        self.motormoving = False
 
         self.motortimer = QTimer(self)
-        
-        self.motortimer.timeout.connect(self.motorpulse)
+        self.basemotorstep = 1
+        self.motortimer.timeout.connect(self.motorStep)
     
+    def motorStep(self):
+        self.hardware.turnMotor(self.basemotorstep, True)
 
-	#These are slots which receive from engine TODO
+	#These are slots which receive signal from GUI TODO
     def toggleLaser(self):
         """Toggles the laser on and off"""
         self.hardware.toggleLaser()		
@@ -37,35 +36,27 @@ class Control(QObject):
 
     def moveRightStart(self):
         """Starts movement of motor to the right until moveStop() is called"""
-        #self.motormoving = True
-        #self.hardware.turnMotor(5, stepInsteadofDeg=True)
         self.motortimer.stop()
-        self.hardware.motorDirection(1)
+        self.basemotorstep = 1
         self.motortimer.start(10)
 
     def moveRightStop(self):
         """Stops movement of motor"""
-        #self.motormoving = False
         self.motortimer.stop()
         return
 
     def moveLeftStart(self):
         """Starts movement of motor to the left until moveStop() is called"""
-        #self.motormoving = True
-        #self.hardware.turnMotor(-5, stepInsteadofDeg=True)
         self.motortimer.stop()
-        self.hardware.motorDirection(-1)
+        self.basemotorstep = -1
         self.motortimer.start(10)
 
 
     def moveLeftStop(self):
         """Stops movement of motor"""
-        #self.motormoving = False
         self.motortimer.stop()
         return
         
-    def motorpulse(self):
-        self.hardware.singleMotorStep()
 
     def measureDistance(self):
         """Measures distance to the object, returns point to gui"""
