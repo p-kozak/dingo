@@ -8,11 +8,14 @@ class Point:
     Angle is in respect to the front of the device.
     """
 
-    def __init__(self, valuepassed=0, anglepassed=0, errorpassed=0):
+    def __init__(self, valuepassed=0, anglepassed=0, errorpassed=0, isaWidth=False):
         self.value = valuepassed
         self.angle = anglepassed
         self.error = errorpassed
-        self.objectType = "point"
+        if isaWidth:
+            self.objectType = "width"
+        else:
+            self.objectType = "point"
     
     def getCartesian(self):
         """
