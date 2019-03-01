@@ -10,6 +10,8 @@ from bluetooth import *
 class Comms(QObject):
 	def __init__(self, parent = None):
 		QObject.__init__(self)
+		self.response="msg:Press Get Data,Press Get Data"
+
 
 	def main(self):
 		# Setup logging
@@ -68,8 +70,8 @@ class Comms(QObject):
 
 
 				#----------------- replace numbers 1 and 3 with variables containing width ----------#  
-				if data == "ping":
-					self.response = "msg:1,3"
+				# if data == "ping":
+				# 	self.response = "msg:1,3"
 				#-------------------------------------------------------------------------------------#
 
 
@@ -79,8 +81,8 @@ class Comms(QObject):
 				# Insert more here
 			   # else:
 				#	response = "msg:Not supported"
-				else:
-					self.response="msg:Press Get Data,Press Get Data"
+				# else:
+				# 	self.response="msg:Press Get Data,Press Get Data"
 				client_sock.send(response)
 				print ("Sent [%s]" % response)
 				
