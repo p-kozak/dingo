@@ -417,9 +417,9 @@ class MainWindow(QMainWindow):
 
 	def receivePoint(self, point):
 		if point.objectType == "point":
-			self.commsThreadObject.response = "msg:" + str(object.value) + "," + str(object.angle)
+			self.commsThreadObject.response = "msg:" + str(point.value) + "," + str(point.angle)
 			self.updateLastDistance(point)
-			self.dataDisplayWidget.addMeasurementToDisplay(point)
+			self.dataDisplayWidget.addMeasurementTpatkozoDisplay(point)
 		elif point.objectType == "width":
 			self.updateWidht(point)
 			self.dataDisplayWidget.addMeasurementToDisplay(point)

@@ -1,6 +1,8 @@
 from control import *
 from PyQt5.QtWidgets import *
 from time import gmtime, strftime
+
+
 class DataDisplay(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
@@ -12,7 +14,8 @@ class DataDisplay(QWidget):
 		layout.addWidget(self.scrollArea)
 
 
-
+	def initialiseTable(self):
+		
 	def initialiseScrollArea(self):
 		self.scrollArea = QScrollArea()
 		self.scrollArea.setWidgetResizable(True)
