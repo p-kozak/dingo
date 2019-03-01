@@ -66,6 +66,7 @@ class Control(QObject):
         
 
     def receiveSpeedValue(self, speed):
+        speed = 11 - speed #there are 10 levels of speed, max is 10
         self.motorpause = speed * self.motorbasepause
         return
 
