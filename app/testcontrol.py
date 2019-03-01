@@ -22,12 +22,6 @@ con = Control()
 
 # image.save("test/testmap.png")
 
-con.moveRightStart()
-
-time.sleep(5)
-con.moveRightStop()
-
-del con
 
 
 
