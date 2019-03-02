@@ -22,8 +22,10 @@ class Point:
         Returns the cartesian coordinates of the point.
         """
         radangle = np.deg2rad(self.angle)
-        x = self.value * np.cos(radangle)
-        y = self.value * np.sin(radangle)
+        x = self.value * np.sin(radangle)
+        print("x: ",x)
+        y = self.value * np.cos(radangle)
+        print("y: ",y)
         return (x, y)
 
 class Map:
@@ -58,40 +60,28 @@ class Map:
         #TODO better determine the dimensions of the map, FIXME fix drawing the map
         #TODO add drawing where the device is?
 
-        minx = min(min(self.xlist), 0)
-        maxx = max(max(self.xlist), 0)
+        minx = abs(min(self.xlist))
+        maxx = abs(max(self.xlist))
 
-        miny = min(min(self.ylist), 0)
-        maxy = max(max(self.ylist), 0)
+        miny = abs(min(self.ylist))
+        maxy = abs(max(self.ylist))
+
+        frame = 10
+        halfsize = round(max(minx, maxx, miny, maxy)) + frame
 
         print("before transformation:")
         print("xlist: ", self.xlist)
         print("ylist: ", self.ylist)
 
-        #list transformation to different origin
-        self.xlist = (self.xlist - minx) + 10.
-        self.ylist = (self.ylist - miny) + 10.
-
-        print("minx: ", minx)
-        print("miny: ", miny)
+        #coordinates translation
+        self.xlist = halfsize + self.xlist
+        self.ylist = halfsize - self.ylist
 
         print("after transformation:")
         print("xlist: ", self.xlist)
         print("ylist: ", self.ylist)
 
-        print("minx: ", minx)
-        print("miny: ", miny)
-
-        width = round((maxx - minx)) + 20
-        height = round((maxy - miny)) + 20
-
-        print("width: ", width)
-        print("height: ", height)
-        print("minx: ", minx)
-        print("miny: ", miny)
-        print("device x,y: ", (abs(minx)+10.), (abs(miny)+10.))
-
-        self.mapImage = QImage(width, height, QImage.Format_RGB32)
+        self.mapImage = QImage((2 * halfsize), (2 * halfsize), QImage.Format_RGB32)
         self.mapImage.fill(Qt.white)
 
         #image drawing
@@ -110,10 +100,7 @@ class Map:
         pen.setColor(Qt.red)
         pen.setWidth(5)
         painter.setPen(pen)
-        painter.drawLine(0, 0, 100, 100) #TODO test case,
-        painter.drawLine(100, 0, 100, 0)
-        painter.drawPoint((abs(minx)+10.), (abs(miny)+10.)) 
-        painter.drawImage
+        painter.drawPoint(round(halfsize), round(halfsize))
         return self.mapImage
 
 
