@@ -110,7 +110,8 @@ class Map:
         pen.setColor(Qt.red)
         pen.setWidth(5)
         painter.setPen(pen)
-        painter.drawLine(0, 0, 100, 100) #TODO test case, 
+        painter.drawLine(0, 0, 100, 100) #TODO test case,
+        painter.drawLine(100, 0, 100, 0)
         painter.drawPoint((abs(minx)+10.), (abs(miny)+10.)) 
         painter.drawImage
         return self.mapImage
