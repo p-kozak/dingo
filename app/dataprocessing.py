@@ -38,6 +38,8 @@ class Map:
         
         self.createMap(self.pointlist)
 
+        self.mapImage = QImage()
+
     def createMap(self, listofcartesianpoints):
         """
         Creates a proper map with straight walls from given list.
@@ -55,21 +57,62 @@ class Map:
         """
         #TODO better determine the dimensions of the map, FIXME fix drawing the map
         #TODO add drawing where the device is?
-        width = int(5 * max(self.xlist))
-        height = int(5 * max(self.ylist))
 
-        mapImage = QImage(width, height, QImage.Format_RGB32)
-        mapImage.fill(Qt.white)
+        minx = min(min(self.xlist), 0)
+        maxx = max(max(self.xlist), 0)
 
-        painter = QPainter(mapImage)
-        pen = QPen(Qt.blue, 5, Qt.SolidLine)
+        miny = min(min(self.ylist), 0)
+        maxy = max(max(self.ylist), 0)
+
+        print("before transformation:")
+        print("xlist: ", self.xlist)
+        print("ylist: ", self.ylist)
+
+        #list transformation to different origin
+        self.xlist = (self.xlist - minx) + 10.
+        self.ylist = (self.ylist - miny) + 10.
+
+        print("minx: ", minx)
+        print("miny: ", miny)
+
+        print("after transformation:")
+        print("xlist: ", self.xlist)
+        print("ylist: ", self.ylist)
+
+        print("minx: ", minx)
+        print("miny: ", miny)
+
+        width = round((maxx - minx)) + 20
+        height = round((maxy - miny)) + 20
+
+        print("width: ", width)
+        print("height: ", height)
+        print("minx: ", minx)
+        print("miny: ", miny)
+        print("device x,y: ", (abs(minx)+10.), (abs(miny)+10.))
+
+        self.mapImage = QImage(width, height, QImage.Format_RGB32)
+        self.mapImage.fill(Qt.white)
+
+        #image drawing
+        painter = QPainter(self.mapImage)
+        pen = QPen(Qt.blue, 2, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
         painter.setPen(pen)
 
+
+        #connecting points
         for it in range(len(self.xlist)-1):
-            painter.drawLine(self.xlist[it], self.ylist[it], self.xlist[it+1], self.ylist[it+1])
-        painter.drawLine(self.xlist[-1], self.ylist[-1], self.xlist[0], self.ylist[0])
-        #painter.drawPoint(0, 0)#just for testing
-        return mapImage
+            painter.drawLine(round(self.xlist[it]), round(self.ylist[it]), round(self.xlist[it+1]), round(self.ylist[it+1]))
+        
+        painter.drawLine(round(self.xlist[-1]), round(self.ylist[-1]), round(self.xlist[0]), round(self.ylist[0])) 
+
+        #position of the device
+        pen.setColor(Qt.red)
+        pen.setWidth(5)
+        painter.setPen(pen)
+        painter.drawLine(0, 0, 100, 100)
+        painter.drawPoint((abs(minx)+10.), (abs(miny)+10.)) 
+        return self.mapImage
 
 
 class DataProcessing:
@@ -105,11 +148,11 @@ class DataProcessing:
         
 
         #error propagation TODO: make it work
-        asqerror = 2 * a.error  / a.value
+        asqerror = 2. * a.error  / a.value
         print("asqerror:", asqerror)
-        bsqerror = 2 * b.error / b.value
+        bsqerror = 2. * b.error / b.value
         print("bsqerror:", bsqerror)
-        costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2) * self.error_motor_angle * np.tan(np.deg2rad(angle))
+        costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2.) * self.error_motor_angle * np.tan(np.deg2rad(angle))
         print("cos term error", costermerror_squared)
         werror = (asqerror * a.value)**2 + (bsqerror * b.value)**2 #+ (costermerror_squared*(costerm**2))
         return (width, werror)
