@@ -59,7 +59,7 @@ class Map:
         """
         #TODO better determine the dimensions of the map, FIXME fix drawing the map
         #TODO add drawing where the device is?
-
+        
         minx = abs(min(self.xlist))
         maxx = abs(max(self.xlist))
 

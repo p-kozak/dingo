@@ -14,13 +14,8 @@ import time
 # width, werror = data.getWidth(x, y)
 # print(width, werror)
 
-# con = Control()
-# p1 = Point(200, -45)
-# p2 = Point(200, 45)
-# m = Map([p1, p2])
-# image = m.getQImage()
 
-# image.save("test/testmap.png")
+
 
 p1 = Point(200., -45.)
 p2 = Point(400., 45.)
