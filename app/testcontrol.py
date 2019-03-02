@@ -14,20 +14,20 @@ import time
 # width, werror = data.getWidth(x, y)
 # print(width, werror)
 
-#con = Control()
+
+
+
 p1 = Point(200., -45.)
-p2 = Point(200., 45.)
-p3 = Point(200., 180.)
+p2 = Point(400., 45.)
+p3 = Point(300., 180.)
+
+print(p1.getCartesian())
+
+print(np.cos(-3.14))
 
 m = Map([p1, p2, p3])
 image = m.getQImage()
 
 image.save("test/testmap.png")
-
-
-
-
-
-
 
 
