@@ -3,6 +3,8 @@ from PyQt5.QtCore import QThread, qDebug, pyqtSignal
 from control import *
 from PyQt5 import QtGui
 from comms import Comms
+from mapswidget import MapsDisplay
+from settingswidget import SettingsWidget
 from datadisplay import DataDisplay
 import os, signal
 
@@ -40,7 +42,6 @@ class MainWindow(QMainWindow):
 
 		self.updateDisplays() #delete later
 
-		self.displayPikaPika()
 
 		self.show()
 
@@ -79,6 +80,7 @@ class MainWindow(QMainWindow):
 		self.setUpMenuWidget()
 		self.setUpStackedLayoutWidget()
 		self.setUpControlGridWidget()
+		self.setUpSettingsWidget()
 		self.setUpImagesWidget()
 		self.setUpDataDisplayWidget()
 		self.addMenuButtons()
@@ -87,7 +89,6 @@ class MainWindow(QMainWindow):
 		self.initialiseVariablesToZero()
 		self.addMotorSpeedControls()
 		self.initialiseSpeedVariable()
-		self.addButtonUpdate()
 		#self.addSliderToControlGrid()
 
 
@@ -127,10 +128,10 @@ class MainWindow(QMainWindow):
 		return
 
 	def setUpImagesWidget(self):
-		self.imagesWidget = QWidget()
-		self.imagesWidget.setMinimumSize(800,380)
-		self.imagesLayout = QHBoxLayout()
-		self.imagesWidget.setLayout(self.imagesLayout)
+		self.imagesWidget = MapsDisplay()
+		# self.imagesWidget.setMinimumSize(800,380)
+		# self.imagesLayout = QHBoxLayout()
+		# self.imagesWidget.setLayout(self.imagesLayout)
 		self.stackedLayout.addWidget(self.imagesWidget)
 
 	def setUpDataDisplayWidget(self):
@@ -140,6 +141,10 @@ class MainWindow(QMainWindow):
 		# self.dataDisplayWidget.setLayout(self.dataDisplayLayout)
 		self.stackedLayout.addWidget(self.dataDisplayWidget)
 		return
+
+	def setUpSettingsWidget(self):
+		self.settingsWidget = SettingsWidget()
+		self.stackedLayout.addWidget(self.settingsWidget)
 
 
 	def addMenuButtons(self):
@@ -158,6 +163,11 @@ class MainWindow(QMainWindow):
 		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
 		self.menuLayout.addWidget(buttonImages)
 
+		buttonSettings = QPushButton("Settings")
+		buttonSettings.setFixedHeight(40)
+		buttonSettings.clicked.connect(self.switchStackedLayoutWidget(self.settingsWidget))
+		self.menuLayout.addWidget(buttonSettings)
+
 
 		return
 
@@ -167,7 +177,6 @@ class MainWindow(QMainWindow):
 		#https://stackoverflow.com/questions/6784084/how-to-pass-arguments-to-functions-by-the-click-of-button-in-pyqt
 		#More information on stack 
 		def functionFactory():
-			print("here i am")
 			self.stackedLayout.setCurrentWidget(widget)
 		return functionFactory
 
@@ -282,7 +291,12 @@ class MainWindow(QMainWindow):
 		buttonWidth = QPushButton("Calculate width")
 		buttonWidth.setFixedHeight(40)
 		buttonWidth.clicked.connect(self.buttonGetWidthPressed)
-		self.controlLayout.addWidget(buttonWidth,8,2)
+		self.controlLayout.addWidget(buttonWidth,8,1)
+
+		buttonScan = QPushButton("Map the room")
+		buttonScan.setFixedHeight(40)
+		buttonScan.clicked.connect(self.buttonScanRoomClicked)
+		self.controlLayout.addWidget(buttonScan,8,2)
 
 		return 
 
@@ -414,6 +428,9 @@ class MainWindow(QMainWindow):
 
 
 		return 
+	def buttonScanRoomClicked(self):
+		self.imagesWidget.addNewMapPair(5)
+
 
 	def receivePoint(self, point):
 		if point.objectType == "point":

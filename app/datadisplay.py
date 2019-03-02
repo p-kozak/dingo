@@ -12,6 +12,7 @@ class DataDisplay(QWidget):
 		self.setMinimumSize(800,380)
 		self.setLayout(layout)
 		layout.addWidget(self.scrollArea)
+		
 
 		
 	def initialiseScrollArea(self):
