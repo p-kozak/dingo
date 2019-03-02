@@ -289,7 +289,7 @@ class MainWindow(QMainWindow):
 	def addButtonUpdate(self):
 		buttonUpdate = QPushButton("UPdate")
 		buttonUpdate.setFixedHeight(40)
-		buttonUpdate.clicked.connect(self.killYourself)
+		buttonUpdate.clicked.connect(self.updateFirmware)
 		self.controlLayout.addWidget(buttonUpdate,3,2)
 
 
@@ -447,9 +447,11 @@ class MainWindow(QMainWindow):
 		self.updateDisplays()
 		return
 
-	def killYourself(self):
+	def updateFirmware(self):
 		pid = os.getpid()
+		os.system("sudo python3 updater.py")
 		os.kill(pid, signal.SIGKILL)
+
 		return
 
 
