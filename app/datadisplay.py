@@ -13,8 +13,6 @@ class DataDisplay(QWidget):
 		self.setLayout(layout)
 		layout.addWidget(self.scrollArea)
 
-
-	def initialiseTable(self):
 		
 	def initialiseScrollArea(self):
 		self.scrollArea = QScrollArea()
