@@ -34,7 +34,7 @@ class LidarSensor:
                    bytesize=serial.EIGHTBITS)
 
         self.resultsmax = 5 # number of measurements per data packet
-        self.offset = 50 # calibration offset
+        self.offset = -40 # calibration offset
 
     def configure(self):
         self.reset()
@@ -100,7 +100,7 @@ class LidarSensor:
                     if checksum & 0xFF == int(s[8]): # checksum is valid
                         distl = int(s[2]) & 0xFF
                         disth = int(s[3]) & 0xFF
-                        dist = (disth<<8) + distl - self.offset
+                        dist = (disth<<8) + distl + self.offset
                         if (dist < 300):
                             dist = 300
                         
@@ -135,7 +135,7 @@ class StepMotor:
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
         self.mode2 = DigitalOutputDevice(20, initial_value = True) #pin BOARD38, MODE2 = 1
         self.stck = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, STCK = 1
-        self.dir = DigitalOutputDevice(16) #pin BOARD36, DIR = 0
+        self.dir = DigitalOutputDevice(16, initial_value=True) #pin BOARD36, DIR = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.vcc.on() #VCC = 1
         self.stck.on() #STCK = 0
@@ -184,6 +184,7 @@ class StepMotor:
                 self.stck.off()
                 time.sleep(steptime)
             self.angle = newangle  
+
         return self.angle
 
 
