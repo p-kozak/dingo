@@ -77,12 +77,12 @@ class Map:
             self.xlist = halfsize + self.xlist
             self.ylist = halfsize - self.ylist
 
-            self.mapImage = QImage((2 * halfsize), int(700 * halfsize / 360), QImage.Format_RGB32)
+            self.mapImage = QImage(int(700 * 2* halfsize / 360), (2 * halfsize), QImage.Format_RGB32)
             self.mapImage.fill(Qt.white)
 
             #image drawing
             painter = QPainter(self.mapImage)
-            pen = QPen(Qt.blue, 2, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
             #connecting points
@@ -96,6 +96,9 @@ class Map:
             pen.setWidth(5)
             painter.setPen(pen)
             painter.drawPoint(round(halfsize), round(halfsize))
+
+            #calculation of area
+
         return self.mapImage
 
 
