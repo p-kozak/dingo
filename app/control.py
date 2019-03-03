@@ -94,7 +94,7 @@ class Control(QObject):
         self.sendPoint(p)
         return 
 
-    def getMap(self, resolution=1):
+    def getMap(self, resolution=10):
         """
         Does scan of a room, creates Map() and image.
         Returns Map() to Gui

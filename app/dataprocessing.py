@@ -82,7 +82,7 @@ class Map:
 
             #image drawing
             painter = QPainter(self.mapImage)
-            pen = QPen(Qt.blue, 2, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
             #connecting points
@@ -96,6 +96,9 @@ class Map:
             pen.setWidth(5)
             painter.setPen(pen)
             painter.drawPoint(round(halfsize), round(halfsize))
+
+            #calculation of area
+
         return self.mapImage
 
 
