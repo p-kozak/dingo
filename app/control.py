@@ -94,7 +94,7 @@ class Control(QObject):
         self.sendPoint(p)
         return 
 
-    def getMap(self):
+    def getMap(self, resolution=1):
         """
         Does scan of a room, creates Map() and image.
         Returns Map() to Gui
@@ -108,11 +108,13 @@ class Control(QObject):
         direction = 1 if startangle >= 0 else 1
 
         #basestep decides on resolution of the scan
-        basestep = -2*direction
+        basestep = -2*direction*resolution
         
         
         #move to the start position
         self.hardware.turnMotor((179.9*direction - startangle))
+
+        print("initial movement")
 
         lpoint = []
         
@@ -128,7 +130,7 @@ class Control(QObject):
             self.hardware.turnMotor(basestep, True)
 
         #create a map
-        scan = Map(lval)
+        scan = Map(lpoint)
 
         #send map to GUI
         self.sendMap(scan)
