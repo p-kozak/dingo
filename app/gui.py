@@ -8,6 +8,7 @@ from mapswidget import MapsDisplay
 from settingswidget import SettingsWidget
 from datadisplay import DataDisplay
 from dataprocessing import Map, Point
+from mapscontrolwidget import MapsControl
 import os, signal
 
 
@@ -91,6 +92,7 @@ class MainWindow(QMainWindow):
 		self.setUpSettingsWidget()
 		self.setUpImagesWidget()
 		self.setUpDataDisplayWidget()
+		self.setUpMapsControlWidget()
 		self.addMenuButtons()
 		self.addButtonsToControlGrid()
 		self.addDisplaysToControlGrid()
@@ -150,6 +152,10 @@ class MainWindow(QMainWindow):
 		self.stackedLayout.addWidget(self.dataDisplayWidget)
 		return
 
+	def setUpMapsControlWidget(self):
+		self.mapsControlWidget = MapsControl()
+		self.stackedLayout.addWidget(self.mapsControlWidget)
+
 	def setUpSettingsWidget(self):
 		self.settingsWidget = SettingsWidget()
 		self.stackedLayout.addWidget(self.settingsWidget)
@@ -166,7 +172,12 @@ class MainWindow(QMainWindow):
 		buttonDisplay.clicked.connect(self.switchStackedLayoutWidget(self.dataDisplayWidget))
 		self.menuLayout.addWidget(buttonDisplay)
 
-		buttonImages = QPushButton("Maps and images")
+		buttonMaps = QPushButton("Maps control")
+		buttonMaps.setFixedHeight(40)
+		buttonMaps.clicked.connect(self.switchStackedLayoutWidget(self.mapsControlWidget))
+		self.menuLayout.addWidget(buttonMaps)
+
+		buttonImages = QPushButton("Maps")
 		buttonImages.setFixedHeight(40)
 		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
 		self.menuLayout.addWidget(buttonImages)
@@ -202,13 +213,13 @@ class MainWindow(QMainWindow):
 		return
 
 	def updateDisplays(self):
-		self.boxDistanceLast.setText("Last distance: " + str(self.lastDistance) )
+		self.boxDistanceLast.setText("Last distance: " + str(self.lastDistance) + "mm")
 		self.boxAngleLast.setText("Last angle: " + str(self.lastAngle))
-		self.boxDistanceFormer.setText("Former distance: " + str(self.formerDistance))
+		self.boxDistanceFormer.setText("Former distance: " + str(self.formerDistance) + "mm")
 		self.boxAngleFormer.setText("Former angle: " + str(self.formerAngle))
-		self.boxWidth.setText("Last width: " + str(self.lastWidth))
+		self.boxWidth.setText("Last width: " + str(self.lastWidth) + "mm")
 		self.boxSpeed.setText("Motor speed: " + str(self.speed))
-		self.boxWidthDistance.setText("Shortest distance: " + str(self.lastWidthDistance))
+		self.boxWidthDistance.setText("Shortest distance: " + str(self.lastWidthDistance) + "mm")
 		return
 
 
@@ -307,12 +318,13 @@ class MainWindow(QMainWindow):
 		buttonWidth = QPushButton("Calculate width")
 		buttonWidth.setFixedHeight(40)
 		buttonWidth.clicked.connect(self.buttonGetWidthPressed)
-		self.controlLayout.addWidget(buttonWidth,8,1)
+		self.controlLayout.addWidget(buttonWidth,8,2)
 
+		# Moved to maps control tab
 		buttonScan = QPushButton("Map the room")
 		buttonScan.setFixedHeight(40)
 		buttonScan.clicked.connect(self.buttonScanRoomClicked)
-		self.controlLayout.addWidget(buttonScan,8,2)
+		# self.controlLayout.addWidget(buttonScan,8,2)
 
 		return 
 
@@ -348,7 +360,7 @@ class MainWindow(QMainWindow):
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
 		self.sendSpeedSignal.connect(self.controlThreadObject.receiveSpeedValue)
-		self.getMapSignal.connect(self.controlThreadObject.getMap)
+		self.mapsControlWidget.getMapSignal.connect(self.controlThreadObject.getMap)
 
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
@@ -442,13 +454,19 @@ class MainWindow(QMainWindow):
 
 		pika.show()
 
-
-
 		return 
+
 	def buttonScanRoomClicked(self):
 		self.getMapSignal.emit()
+
 		return
 
+	def sendMarkNixon(self):
+		img = QImage("nix.png")
+		mp = Map()
+		mp.mapImage = img
+		self.imagesWidget.addNewMapPair(mp)
+		return
 
 	def receivePoint(self, point):
 		point.value = round(point.value,2)

@@ -84,7 +84,7 @@ class DataDisplay(QWidget):
 		boxDistance.setFixedHeight(30)
 		boxDistance.setFixedWidth(150)
 		boxDistance.setReadOnly(True)
-		boxDistance.setText("Distance: " + str(value))
+		boxDistance.setText("Distance: " + str(value) + "mm")
 		self.gridDataLayout.addWidget(boxDistance, self.gridDataLayout.rowCount() -1 ,2)
 		return 
 
@@ -93,7 +93,7 @@ class DataDisplay(QWidget):
 		boxAngle.setFixedHeight(30)
 		boxAngle.setFixedWidth(150)
 		boxAngle.setReadOnly(True)
-		boxAngle.setText("Angle: " + str(angle))
+		boxAngle.setText("Angle: " + str(angle) + "mm")
 		self.gridDataLayout.addWidget(boxAngle, self.gridDataLayout.rowCount() -1 ,3)
 		return
 
@@ -102,7 +102,7 @@ class DataDisplay(QWidget):
 		boxError.setFixedHeight(30)
 		boxError.setFixedWidth(90)
 		boxError.setReadOnly(True)
-		boxError.setText("Error: " + str(error))
+		boxError.setText("Error: " + str(error) + "mm")
 		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 ,4)
 		return
 
@@ -111,7 +111,7 @@ class DataDisplay(QWidget):
 		boxError.setFixedHeight(30)
 		boxError.setFixedWidth(150)
 		boxError.setReadOnly(True)
-		boxError.setText("Width: " + str(width))
+		boxError.setText("Width: " + str(width) + "mm")
 		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 , 2 )
 		return
 
@@ -120,7 +120,7 @@ class DataDisplay(QWidget):
 		boxWidthDistance.setFixedHeight(30)
 		boxWidthDistance.setFixedWidth(150)
 		boxWidthDistance.setReadOnly(True)
-		boxWidthDistance.setText("Shortest distance: " + str(distance))
+		boxWidthDistance.setText("Shortest distance: " + str(distance) + "mm")
 		self.gridDataLayout.addWidget(boxWidthDistance, self.gridDataLayout.rowCount() -1 , 3)
 		
 

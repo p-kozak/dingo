@@ -27,7 +27,7 @@ class Control(QObject):
         self.motorbasepause = 5
         self.motorpause = 5*self.motorbasepause
         
-        self.motorTimer.timeout.connect(self.motorStep)
+        self.motorTimer.timeout.connect(self.motorStep
 
     def __del__(self):
         self.motorTimer.stop()
@@ -92,9 +92,14 @@ class Control(QObject):
         p.value, p.error, p.angle = self.data.getWidth(self.prevpoint, self.prevprevpoint)
         #p = Point(val, 0, error, True)
         self.sendPoint(p)
+    
         return 
 
-    def getMap(self, resolution=10):
+
+
+
+
+    def getMap(self, leftAngle, rightAngle, resolution):
         """
         Does scan of a room, creates Map() and image.
         Returns Map() to Gui
@@ -144,7 +149,6 @@ class Control(QObject):
         #move back to start position
         self.hardware.turnMotor((startangle - self.hardware.Motor.angle))
         return
-
 
 
 
