@@ -144,6 +144,7 @@ class StepMotor:
 
         newangle = self.angle + self.STEP_DEGREE * stepnum
 
+
         if newangle < 185. and newangle > -185.:
             if steptime < self.WAIT_TIME:
                 steptime = self.WAIT_TIME
@@ -180,7 +181,7 @@ class HardwareControl:
         self.Lidar = LidarSensor()
         self.Lidar.configure()
 
-        self.Laser = DigitalOutputDevice(21) #BOARD21
+        self.Laser = DigitalOutputDevice(21) #BOARD40
         #self.motorangle = self.Motor.angle
 
     def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1): #TODO add speed of turning

@@ -123,13 +123,19 @@ class DataProcessing:
     def getWidth(self, a, b):
         """
         Calculates and returns the distance between 2 points.
-        return width, error
+        It also calculates the distance to the line made by those 2 points.
+        return width, error, distance
         """
         angle = abs(a.angle - b.angle)
         costerm = 2 * a.value * b.value * np.cos(np.deg2rad(angle))
         print("costerm", costerm)
         width = np.sqrt(a.value**2 + b.value**2 - costerm) # a^2 + b^2 - 2*a*b*cos(angle<ab>)
         
+
+        ob = a.value + b.value + width
+        twicearea = np.sqrt(ob * (ob - 2 * a.value) * (ob - 2 * b.value) * (ob - 2 * width))
+        distance = twicearea / width
+
         #TODO add distance to the object
 
         #error propagation TODO: make it work
@@ -140,6 +146,6 @@ class DataProcessing:
         costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2.) * self.error_motor_angle * np.tan(np.deg2rad(angle))
         print("cos term error", costermerror_squared)
         werror = (asqerror * a.value)**2 + (bsqerror * b.value)**2 #+ (costermerror_squared*(costerm**2))
-        return (width, werror)
+        return (width, werror, distance)
 
 
