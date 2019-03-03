@@ -87,6 +87,7 @@ class LidarSensor:
 
     def getdata(self):
         dists = []
+        invalidresultscount = 0
         for n in range(self.resultsmax):
             dist = 65535
             while dist > 12000: # any value outside the range of 300-12000 is invalid
@@ -103,8 +104,13 @@ class LidarSensor:
                         dist = (disth<<8) + distl + self.offset
                         if (dist < 300):
                             dist = 300
-                        
-            dists.append(dist)
+
+                if dist > 12000:
+                    invalidresultscount += 1
+                if invalidresultscount > 3:
+                    break
+            if dist <= 12000:       
+                dists.append(dist)
             
         return dists
 
