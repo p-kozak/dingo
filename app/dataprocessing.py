@@ -32,17 +32,21 @@ class Map:
     """
     Class used to store list of points in cartesian coordinates, where the device is an origin.
     """
-    def __init__(self, listofcartesianpoints = []):
+    def __init__(self, listofpoints = []):
         self.objectType = "map"
-        self.pointlist = listofcartesianpoints
+        self.pointlist = listofpoints
         self.xlist = []
         self.ylist = []
-        
-        self.createMap(self.pointlist)
-
         self.mapImage = QImage()
+        
+        if len(self.pointlist) != 0:
+            self.createMap(self.pointlist)
+            self.getQImage()
 
-    def createMap(self, listofcartesianpoints):
+        
+
+
+    def createMap(self, listofpoints=[]):
         """
         Creates a proper map with straight walls from given list.
         Returns two lists, one consists of x values, one of y values.
@@ -55,52 +59,43 @@ class Map:
 
     def getQImage(self): #TODO incorporate the scaling
         """
+        Creates Qimage of the map.
         Returns scaled QImage of the map
         """
-        #TODO better determine the dimensions of the map, FIXME fix drawing the map
-        #TODO add drawing where the device is?
-        
-        minx = abs(min(self.xlist))
-        maxx = abs(max(self.xlist))
+        if self.mapImage.isNull():
+            #determining size of image
+            minx = abs(min(self.xlist))
+            maxx = abs(max(self.xlist))
 
-        miny = abs(min(self.ylist))
-        maxy = abs(max(self.ylist))
+            miny = abs(min(self.ylist))
+            maxy = abs(max(self.ylist))
 
-        frame = 10
-        halfsize = round(max(minx, maxx, miny, maxy)) + frame
+            frame = 10
+            halfsize = round(max(minx, maxx, miny, maxy)) + frame
 
-        print("before transformation:")
-        print("xlist: ", self.xlist)
-        print("ylist: ", self.ylist)
+            #coordinates translation
+            self.xlist = halfsize + self.xlist
+            self.ylist = halfsize - self.ylist
 
-        #coordinates translation
-        self.xlist = halfsize + self.xlist
-        self.ylist = halfsize - self.ylist
+            self.mapImage = QImage((2 * halfsize), int(700 * halfsize / 360), QImage.Format_RGB32)
+            self.mapImage.fill(Qt.white)
 
-        print("after transformation:")
-        print("xlist: ", self.xlist)
-        print("ylist: ", self.ylist)
+            #image drawing
+            painter = QPainter(self.mapImage)
+            pen = QPen(Qt.blue, 2, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            painter.setPen(pen)
 
-        self.mapImage = QImage((2 * halfsize), (2 * halfsize), QImage.Format_RGB32)
-        self.mapImage.fill(Qt.white)
+            #connecting points
+            for it in range(len(self.xlist)-1):
+                painter.drawLine(round(self.xlist[it]), round(self.ylist[it]), round(self.xlist[it+1]), round(self.ylist[it+1]))
+            
+            painter.drawLine(round(self.xlist[-1]), round(self.ylist[-1]), round(self.xlist[0]), round(self.ylist[0])) 
 
-        #image drawing
-        painter = QPainter(self.mapImage)
-        pen = QPen(Qt.blue, 2, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
-        painter.setPen(pen)
-
-
-        #connecting points
-        for it in range(len(self.xlist)-1):
-            painter.drawLine(round(self.xlist[it]), round(self.ylist[it]), round(self.xlist[it+1]), round(self.ylist[it+1]))
-        
-        painter.drawLine(round(self.xlist[-1]), round(self.ylist[-1]), round(self.xlist[0]), round(self.ylist[0])) 
-
-        #position of the device
-        pen.setColor(Qt.red)
-        pen.setWidth(5)
-        painter.setPen(pen)
-        painter.drawPoint(round(halfsize), round(halfsize))
+            #position of the device
+            pen.setColor(Qt.red)
+            pen.setWidth(5)
+            painter.setPen(pen)
+            painter.drawPoint(round(halfsize), round(halfsize))
         return self.mapImage
 
 
@@ -135,6 +130,7 @@ class DataProcessing:
         print("costerm", costerm)
         width = np.sqrt(a.value**2 + b.value**2 - costerm) # a^2 + b^2 - 2*a*b*cos(angle<ab>)
         
+        #TODO add distance to the object
 
         #error propagation TODO: make it work
         asqerror = 2. * a.error  / a.value
