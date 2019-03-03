@@ -119,7 +119,7 @@ class Control(QObject):
         lpoint = []
         
         #do the scan
-        while self.hardware.Motor.angle < (direction* -180.):
+        while (self.hardware.Motor.angle < 180 and direction == -1) or (self.hardware.Motor.angle > -180 and direction == 1):
             print(self.hardware.Motor.angle)
             #get distance at current position:
             lval = self.hardware.getDistance()
