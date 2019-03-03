@@ -87,7 +87,6 @@ class Control(QObject):
         return
 
     def calculateWidth(self):
-        """Calculates width between last two points. Returns value to gui"""
         val, error = self.data.getWidth(self.prevpoint, self.prevprevpoint)
         p = Point(val, 0, error, True)
         self.sendPoint(p)

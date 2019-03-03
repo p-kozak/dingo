@@ -117,7 +117,7 @@ class StepMotor:
         self.stck.on() #STCK = 0
 
         self.angle = currentangle #current angle of the motor
-        self.direction = 1 #1 for right turn, -1 for left turn.
+        self.direction = 1. #1 for right turn, -1 for left turn.
         self.stepmicro = True #True for micro step, False for normal step
 
     def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
@@ -144,7 +144,7 @@ class StepMotor:
 
         newangle = self.angle + self.STEP_DEGREE * stepnum
 
-        if newangle < 200 and newangle > -200:
+        if newangle < 185. and newangle > -185.:
             if steptime < self.WAIT_TIME:
                 steptime = self.WAIT_TIME
 
@@ -194,7 +194,7 @@ class HardwareControl:
         else:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
-        steptime = steptime / 100
+        steptime = steptime / 100.
         motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 
