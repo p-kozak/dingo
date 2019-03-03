@@ -55,9 +55,9 @@ class Comms(QObject):
 				client_sock, client_info = server_sock.accept()
 				print("Accepted connection from ", client_info)
 				
-				#Read the data sent by the client
+				# Read the data sent by the client
 				data = client_sock.recv(1024)
-				#if len(data) == 0:
+				# if len(data) == 0:
 					 #break
 
 			   # print "Received [%s]" % data

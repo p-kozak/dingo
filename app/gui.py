@@ -2,9 +2,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, qDebug, pyqtSignal
 from control import *
 from PyQt5 import QtGui
+from PyQt5.QtGui import QPalette, QImage
 from comms import Comms
+from mapswidget import MapsDisplay
+from settingswidget import SettingsWidget
 from datadisplay import DataDisplay
+from dataprocessing import Map, Point
 import os, signal
+
 
 
 
@@ -25,10 +30,15 @@ class MainWindow(QMainWindow):
 	calculateWidthSignal = pyqtSignal()
 	sendSpeedSignal = pyqtSignal(int)
 	connectBluetoothSignal = pyqtSignal()
+	getMapSignal = pyqtSignal()
 
 
 	def __init__(self, parent = None):
 		QMainWindow.__init__(self)
+		#self.setStyleSheet("background-color: black;")
+		#self.setStyleSheet(".QPushButton { background-color: black}")
+		self.setAutoFillBackground(True)
+
 		#Set the properties of the window
 		self.setMinimumSize(800,480)
 		self.setWindowTitle("Dingo is amazing")
@@ -40,7 +50,6 @@ class MainWindow(QMainWindow):
 
 		self.updateDisplays() #delete later
 
-		self.displayPikaPika()
 
 		self.show()
 
@@ -79,6 +88,7 @@ class MainWindow(QMainWindow):
 		self.setUpMenuWidget()
 		self.setUpStackedLayoutWidget()
 		self.setUpControlGridWidget()
+		self.setUpSettingsWidget()
 		self.setUpImagesWidget()
 		self.setUpDataDisplayWidget()
 		self.addMenuButtons()
@@ -87,7 +97,6 @@ class MainWindow(QMainWindow):
 		self.initialiseVariablesToZero()
 		self.addMotorSpeedControls()
 		self.initialiseSpeedVariable()
-		self.addButtonUpdate()
 		#self.addSliderToControlGrid()
 
 
@@ -127,10 +136,10 @@ class MainWindow(QMainWindow):
 		return
 
 	def setUpImagesWidget(self):
-		self.imagesWidget = QWidget()
-		self.imagesWidget.setMinimumSize(800,380)
-		self.imagesLayout = QHBoxLayout()
-		self.imagesWidget.setLayout(self.imagesLayout)
+		self.imagesWidget = MapsDisplay()
+		# self.imagesWidget.setMinimumSize(800,380)
+		# self.imagesLayout = QHBoxLayout()
+		# self.imagesWidget.setLayout(self.imagesLayout)
 		self.stackedLayout.addWidget(self.imagesWidget)
 
 	def setUpDataDisplayWidget(self):
@@ -140,6 +149,10 @@ class MainWindow(QMainWindow):
 		# self.dataDisplayWidget.setLayout(self.dataDisplayLayout)
 		self.stackedLayout.addWidget(self.dataDisplayWidget)
 		return
+
+	def setUpSettingsWidget(self):
+		self.settingsWidget = SettingsWidget()
+		self.stackedLayout.addWidget(self.settingsWidget)
 
 
 	def addMenuButtons(self):
@@ -158,6 +171,11 @@ class MainWindow(QMainWindow):
 		buttonImages.clicked.connect(self.switchStackedLayoutWidget(self.imagesWidget))
 		self.menuLayout.addWidget(buttonImages)
 
+		buttonSettings = QPushButton("Settings")
+		buttonSettings.setFixedHeight(40)
+		buttonSettings.clicked.connect(self.switchStackedLayoutWidget(self.settingsWidget))
+		self.menuLayout.addWidget(buttonSettings)
+
 
 		return
 
@@ -167,7 +185,6 @@ class MainWindow(QMainWindow):
 		#https://stackoverflow.com/questions/6784084/how-to-pass-arguments-to-functions-by-the-click-of-button-in-pyqt
 		#More information on stack 
 		def functionFactory():
-			print("here i am")
 			self.stackedLayout.setCurrentWidget(widget)
 		return functionFactory
 
@@ -177,6 +194,7 @@ class MainWindow(QMainWindow):
 		self.formerDistance = 0
 		self.formerAngle = 0
 		self.lastWidth = 0
+		self.lastWidthDistance = 0
 		return
 
 	def initialiseSpeedVariable(self):
@@ -190,6 +208,7 @@ class MainWindow(QMainWindow):
 		self.boxAngleFormer.setText("Former angle: " + str(self.formerAngle))
 		self.boxWidth.setText("Last width: " + str(self.lastWidth))
 		self.boxSpeed.setText("Motor speed: " + str(self.speed))
+		self.boxWidthDistance.setText("Shortest distance: " + str(self.lastWidthDistance))
 		return
 
 
@@ -224,6 +243,11 @@ class MainWindow(QMainWindow):
 		self.boxSpeed.setReadOnly(True)
 		self.controlLayout.addWidget(self.boxSpeed,5,1)
 
+		self.boxWidthDistance = QLineEdit()
+		self.boxWidthDistance.setFixedHeight(40)
+		self.boxWidthDistance.setReadOnly(True)
+		self.controlLayout.addWidget(self.boxWidthDistance,3,2)
+
 		return 
 
 	def addSliderToControlGrid(self):
@@ -238,6 +262,7 @@ class MainWindow(QMainWindow):
 
 	def addButtonsToControlGrid(self):
 		buttonToggleLaser = QPushButton("Toggle laser")
+		#buttonToggleLaser.setStyleSheet("background-color: white")
 		buttonToggleLaser.setFixedHeight(40)
 		buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
 		self.controlLayout.addWidget(buttonToggleLaser,0,0)
@@ -282,14 +307,19 @@ class MainWindow(QMainWindow):
 		buttonWidth = QPushButton("Calculate width")
 		buttonWidth.setFixedHeight(40)
 		buttonWidth.clicked.connect(self.buttonGetWidthPressed)
-		self.controlLayout.addWidget(buttonWidth,8,2)
+		self.controlLayout.addWidget(buttonWidth,8,1)
+
+		buttonScan = QPushButton("Map the room")
+		buttonScan.setFixedHeight(40)
+		buttonScan.clicked.connect(self.buttonScanRoomClicked)
+		self.controlLayout.addWidget(buttonScan,8,2)
 
 		return 
 
 	def addButtonUpdate(self):
 		buttonUpdate = QPushButton("UPdate")
 		buttonUpdate.setFixedHeight(40)
-		buttonUpdate.clicked.connect(self.killYourself)
+		buttonUpdate.clicked.connect(self.updateFirmware)
 		self.controlLayout.addWidget(buttonUpdate,3,2)
 
 
@@ -318,6 +348,7 @@ class MainWindow(QMainWindow):
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
 		self.sendSpeedSignal.connect(self.controlThreadObject.receiveSpeedValue)
+		self.getMapSignal.connect(self.controlThreadObject.getMap)
 
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
@@ -414,9 +445,18 @@ class MainWindow(QMainWindow):
 
 
 		return 
+	def buttonScanRoomClicked(self):
+		self.getMapSignal.emit()
+		return
+
 
 	def receivePoint(self, point):
+		point.value = round(point.value,2)
+		point.angle = round(point.angle,2)
+		point.error = round(point.error,2)
+
 		if point.objectType == "point":
+			point.value = round()
 			self.commsThreadObject.response = "msg:" + str(point.value) + "," + str(point.angle)
 			self.updateLastDistance(point)
 			self.dataDisplayWidget.addMeasurementTpatkozoDisplay(point)
@@ -426,7 +466,8 @@ class MainWindow(QMainWindow):
 		return
 
 
-	def receiveMap(self, map):
+	def receiveMap(self, imageMap):
+		self.imagesWidget.addNewMapPair(imageMap)
 
 		return 
 
@@ -444,12 +485,15 @@ class MainWindow(QMainWindow):
 
 	def updateWidht(self, point):
 		self.lastWidth = point.value
+		self.lastWidthDistance = point.angle
 		self.updateDisplays()
 		return
 
-	def killYourself(self):
+	def updateFirmware(self):
 		pid = os.getpid()
+		os.system("sudo python3 updater.py")
 		os.kill(pid, signal.SIGKILL)
+
 		return
 
 
