@@ -456,11 +456,10 @@ class MainWindow(QMainWindow):
 		point.error = round(point.error,2)
 
 		if point.objectType == "point":
-			point.value = round()
-			self.commsThreadObject.response = "msg:" + str(point.value) + "," + str(point.angle)
 			self.updateLastDistance(point)
-			self.dataDisplayWidget.addMeasurementTpatkozoDisplay(point)
-		elif point.objectType == "width":
+			self.dataDisplayWidget.addMeasurementToDisplay(point)
+		elif point.objectType == "width":			
+			self.commsThreadObject.response = "msg:" + str(point.value) + "," + str(point.angle)
 			self.updateWidht(point)
 			self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
