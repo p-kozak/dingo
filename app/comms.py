@@ -83,8 +83,8 @@ class Comms(QObject):
 				#	response = "msg:Not supported"
 				# else:
 				# 	self.response="msg:Press Get Data,Press Get Data"
-				client_sock.send(response)
-				print ("Sent [%s]" % response)
+				client_sock.send(self.response)
+				print ("Sent [%s]" % self.response)
 				
 
 			except IOError:
