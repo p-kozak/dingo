@@ -129,6 +129,9 @@ class Control(QObject):
             #move to next position
             self.hardware.turnMotor(basestep, True)
 
+        print("motor angle end: ", self.hardware.Motor.angle)
+        print("max : ", (direction* -180.) )
+
         #create a map
         scan = Map(lpoint)
 
