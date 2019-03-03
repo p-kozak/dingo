@@ -61,9 +61,10 @@ class MapsDisplay(QWidget):
 		self.count += 1
 		return
 
-	def addNewImage(self, imageMap):
+	def addNewImage(self, mapImage):
 		index = self.count
-		image = imageMap
+		image = mapImage
+		image.save("test/testmap.png")
 
 		label = QLabel(self)
 		pix = QPixmap()

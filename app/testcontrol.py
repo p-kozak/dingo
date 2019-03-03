@@ -1,6 +1,6 @@
 #from control import *
 from dataprocessing import *
-from control import Control
+#from control import Control
 import time
 
 
@@ -14,14 +14,19 @@ import time
 # width, werror = data.getWidth(x, y)
 # print(width, werror)
 
-con = Control()
-# p1 = Point(200, -45)
-# p2 = Point(200, 45)
-# m = Map([p1, p2])
+# con = Control()
+
+
+#test case for map drawing
+# p1 = Point(200., -45.)
+# p2 = Point(400., 45.)
+# p3 = Point(300., 180.)
+
+# l = [p1, p2, p3]
+
+# m = Map([p1, p2, p3])
 # image = m.getQImage()
 
 # image.save("test/testmap.png")
 
-
-
-
+print([] == [])

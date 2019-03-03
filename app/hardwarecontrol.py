@@ -8,12 +8,21 @@ import time
 cfgheader = [0x42, 0x57, 0x02, 0x00]  
 cfgenter = [0x00, 0x00, 0x01, 0x02]
 cfgexit = [0x00, 0x00, 0x00, 0x02]
+
 cfgrst = [0xFF, 0xFF, 0xFF, 0xFF]
+
 cfginterval = [0x01, 0x00, 0x00, 0x07]
+
 cfgmm = [0x00, 0x00, 0x00, 0x1A]
 cfgcm = [0x00, 0x00, 0x01, 0x1A]
+
+cfgautodistmode = [0x00, 0x00, 0x00, 0x14]
+cfgfixdistmode = [0x00, 0x00, 0x01, 0x14]
+cfglongdistmode = [0x00, 0x00, 0x07, 0x11]
+
 cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
 cfginttrigger = [0x00, 0x00, 0x01, 0x40]
+
 cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
 class LidarSensor:   
@@ -25,13 +34,17 @@ class LidarSensor:
                    bytesize=serial.EIGHTBITS)
 
         self.resultsmax = 5 # number of measurements per data packet
-        self.offset = 50 # calibration offset
+        self.offset = -40 # calibration offset
 
     def configure(self):
         self.reset()
-        time.sleep(1) # wait to ensure command acknowledged
+        time.sleep(0.7) # wait to ensure command acknowledged
         self.setdistunit(distunit="mm")
-        time.sleep(0.5)   
+        time.sleep(0.3)
+        self.setdistmode(distmode="fix")
+        time.sleep(0.3)
+        self.setlongdistmode()
+        time.sleep(0.3)   
 
     def sendcmd(self, cmdbytes):
         cmdbytearray = bytearray(cmdbytes)
@@ -45,6 +58,17 @@ class LidarSensor:
         cmd = cfgheader + cfginterval
         cmd[5] = round(interval, -1) & 0xFF
         print("value: " + str(hex(cmd[5])))
+        self.sendcmd(cmd)
+
+    def setdistmode(self, distmode="auto"):
+        if distmode == "fix":
+            cmd = cfgheader + cfgfixdistmode
+        else:
+            cmd = cfgheader + cfgautodistmode
+        self.sendcmd(cmd)
+
+    def setlongdistmode(self):
+        cmd = cfgheader + cfglongdistmode
         self.sendcmd(cmd)
 
     def setdistunit(self, distunit="mm"):
@@ -63,6 +87,7 @@ class LidarSensor:
 
     def getdata(self):
         dists = []
+        invalidresultscount = 0
         for n in range(self.resultsmax):
             dist = 65535
             while dist > 12000: # any value outside the range of 300-12000 is invalid
@@ -76,11 +101,16 @@ class LidarSensor:
                     if checksum & 0xFF == int(s[8]): # checksum is valid
                         distl = int(s[2]) & 0xFF
                         disth = int(s[3]) & 0xFF
-                        dist = (disth<<8) + distl - self.offset
+                        dist = (disth<<8) + distl + self.offset
                         if (dist < 300):
                             dist = 300
-                        
-            dists.append(dist)
+
+                if dist > 12000:
+                    invalidresultscount += 1
+                if invalidresultscount > 3:
+                    break
+            if dist <= 12000:       
+                dists.append(dist)
             
         return dists
 
@@ -111,13 +141,13 @@ class StepMotor:
         self.mode1 = DigitalOutputDevice(19, initial_value = True) #pin BOARD35, MODE1 = 1
         self.mode2 = DigitalOutputDevice(20, initial_value = True) #pin BOARD38, MODE2 = 1
         self.stck = DigitalOutputDevice(13, initial_value = True) #pin BOARD33, STCK = 1
-        self.dir = DigitalOutputDevice(16) #pin BOARD36, DIR = 0
+        self.dir = DigitalOutputDevice(16, initial_value=True) #pin BOARD36, DIR = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
         self.vcc.on() #VCC = 1
         self.stck.on() #STCK = 0
 
         self.angle = currentangle #current angle of the motor
-        self.direction = 1 #1 for right turn, -1 for left turn.
+        self.direction = -1. #1 for right turn, -1 for left turn.
         self.stepmicro = True #True for micro step, False for normal step
 
     def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
@@ -144,7 +174,8 @@ class StepMotor:
 
         newangle = self.angle + self.STEP_DEGREE * stepnum
 
-        if newangle < 200 and newangle > -200:
+
+        if newangle < 185. and newangle > -185.:
             if steptime < self.WAIT_TIME:
                 steptime = self.WAIT_TIME
 
@@ -159,6 +190,7 @@ class StepMotor:
                 self.stck.off()
                 time.sleep(steptime)
             self.angle = newangle  
+
         return self.angle
 
 
@@ -180,7 +212,7 @@ class HardwareControl:
         self.Lidar = LidarSensor()
         self.Lidar.configure()
 
-        self.Laser = DigitalOutputDevice(21) #BOARD21
+        self.Laser = DigitalOutputDevice(21) #BOARD40
         #self.motorangle = self.Motor.angle
 
     def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1): #TODO add speed of turning
@@ -194,7 +226,7 @@ class HardwareControl:
         else:
             stepnum = int(degrees / self.Motor.STEP_DEGREE)
 
-        steptime = steptime / 100
+        steptime = steptime / 100.
         motangle = self.Motor.turnbyStep(stepnum)
         return motangle
 

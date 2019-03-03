@@ -22,23 +22,31 @@ class Point:
         Returns the cartesian coordinates of the point.
         """
         radangle = np.deg2rad(self.angle)
-        x = self.value * np.cos(radangle)
-        y = self.value * np.sin(radangle)
+        x = self.value * np.sin(radangle)
+        print("x: ",x)
+        y = self.value * np.cos(radangle)
+        print("y: ",y)
         return (x, y)
 
 class Map:
     """
     Class used to store list of points in cartesian coordinates, where the device is an origin.
     """
-    def __init__(self, listofcartesianpoints = []):
+    def __init__(self, listofpoints = []):
         self.objectType = "map"
-        self.pointlist = listofcartesianpoints
+        self.pointlist = listofpoints
         self.xlist = []
         self.ylist = []
+        self.mapImage = QImage()
         
-        self.createMap(self.pointlist)
+        if len(self.pointlist) != 0:
+            self.createMap(self.pointlist)
+            self.getQImage()
 
-    def createMap(self, listofcartesianpoints):
+        
+
+
+    def createMap(self, listofpoints=[]):
         """
         Creates a proper map with straight walls from given list.
         Returns two lists, one consists of x values, one of y values.
@@ -51,25 +59,47 @@ class Map:
 
     def getQImage(self): #TODO incorporate the scaling
         """
+        Creates Qimage of the map.
         Returns scaled QImage of the map
         """
-        #TODO better determine the dimensions of the map, FIXME fix drawing the map
-        #TODO add drawing where the device is?
-        width = int(5 * max(self.xlist))
-        height = int(5 * max(self.ylist))
+        if self.mapImage.isNull():
+            #determining size of image
+            minx = abs(min(self.xlist))
+            maxx = abs(max(self.xlist))
 
-        mapImage = QImage(width, height, QImage.Format_RGB32)
-        mapImage.fill(Qt.white)
+            miny = abs(min(self.ylist))
+            maxy = abs(max(self.ylist))
 
-        painter = QPainter(mapImage)
-        pen = QPen(Qt.blue, 5, Qt.SolidLine)
-        painter.setPen(pen)
+            frame = 10
+            halfsize = round(max(minx, maxx, miny, maxy)) + frame
 
-        for it in range(len(self.xlist)-1):
-            painter.drawLine(self.xlist[it], self.ylist[it], self.xlist[it+1], self.ylist[it+1])
-        painter.drawLine(self.xlist[-1], self.ylist[-1], self.xlist[0], self.ylist[0])
-        #painter.drawPoint(0, 0)#just for testing
-        return mapImage
+            #coordinates translation
+            self.xlist = halfsize + self.xlist
+            self.ylist = halfsize - self.ylist
+
+            self.mapImage = QImage(int(700 * 2* halfsize / 360), (2 * halfsize), QImage.Format_RGB32)
+            self.mapImage.fill(Qt.white)
+
+            #image drawing
+            painter = QPainter(self.mapImage)
+            pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            painter.setPen(pen)
+
+            #connecting points
+            for it in range(len(self.xlist)-1):
+                painter.drawLine(round(self.xlist[it]), round(self.ylist[it]), round(self.xlist[it+1]), round(self.ylist[it+1]))
+            
+            painter.drawLine(round(self.xlist[-1]), round(self.ylist[-1]), round(self.xlist[0]), round(self.ylist[0])) 
+
+            #position of the device
+            pen.setColor(Qt.red)
+            pen.setWidth(5)
+            painter.setPen(pen)
+            painter.drawPoint(round(halfsize), round(halfsize))
+
+            #calculation of area
+
+        return self.mapImage
 
 
 class DataProcessing:
@@ -96,7 +126,8 @@ class DataProcessing:
     def getWidth(self, a, b):
         """
         Calculates and returns the distance between 2 points.
-        return width, error
+        It also calculates the distance to the line made by those 2 points.
+        return width, error, distance
         """
         angle = abs(a.angle - b.angle)
         costerm = 2 * a.value * b.value * np.cos(np.deg2rad(angle))
@@ -104,14 +135,20 @@ class DataProcessing:
         width = np.sqrt(a.value**2 + b.value**2 - costerm) # a^2 + b^2 - 2*a*b*cos(angle<ab>)
         
 
+        ob = a.value + b.value + width
+        twicearea = np.sqrt(ob * (ob - 2 * a.value) * (ob - 2 * b.value) * (ob - 2 * width))
+        distance = twicearea / (2*width)
+
+        #TODO add distance to the object
+
         #error propagation TODO: make it work
-        asqerror = 2 * a.error  / a.value
+        asqerror = 2. * a.error  / a.value
         print("asqerror:", asqerror)
-        bsqerror = 2 * b.error / b.value
+        bsqerror = 2. * b.error / b.value
         print("bsqerror:", bsqerror)
-        costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2) * self.error_motor_angle * np.tan(np.deg2rad(angle))
+        costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2.) * self.error_motor_angle * np.tan(np.deg2rad(angle))
         print("cos term error", costermerror_squared)
         werror = (asqerror * a.value)**2 + (bsqerror * b.value)**2 #+ (costermerror_squared*(costerm**2))
-        return (width, werror)
+        return (width, werror, distance)
 
 

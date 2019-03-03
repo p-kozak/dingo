@@ -16,18 +16,18 @@ class Control(QObject):
     
     def __init__(self):
         QObject.__init__(self)
-        # self.prevpoint = Point()
-        # self.prevprevpoint = Point()
-        # self.hardware = HardwareControl()
-        # self.data = DataProcessing()
+        self.prevpoint = Point()
+        self.prevprevpoint = Point()
+        self.hardware = HardwareControl()
+        self.data = DataProcessing()
 
-        # self.motorTimer = QTimer(self)
-        # self.basemotorstep = 1
+        self.motorTimer = QTimer(self)
+        self.basemotorstep = 1
 
-        # self.motorbasepause = 5
-        # self.motorpause = 5*self.motorbasepause
+        self.motorbasepause = 5
+        self.motorpause = 5*self.motorbasepause
         
-        # self.motorTimer.timeout.connect(self.motorStep)
+        self.motorTimer.timeout.connect(self.motorStep
 
     def __del__(self):
         self.motorTimer.stop()
@@ -87,14 +87,67 @@ class Control(QObject):
         return
 
     def calculateWidth(self):
-        val, error = self.data.getWidth(self.prevpoint, self.prevprevpoint)
-        p = Point(val, 0, error, True)
+        """Calculates width between last two points. Returns value to gui"""
+        p = Point(isaWidth=True)
+        p.value, p.error, p.angle = self.data.getWidth(self.prevpoint, self.prevprevpoint)
+        #p = Point(val, 0, error, True)
         self.sendPoint(p)
     
         return 
 
+
+
+
+
     def getMap(self, leftAngle, rightAngle, resolution):
-  
+        """
+        Does scan of a room, creates Map() and image.
+        Returns Map() to Gui
+        """
+        #turn of the laser pointer off if on
+        if self.hardware.Laser.value != 0:
+            self.hardware.Laser.off()
+
+        startangle = self.hardware.Motor.angle
+        #to minimise movement unneccesary, decide whether move first right or left
+        direction = 1 if startangle >= 0 else -1
+
+        #basestep decides on resolution of the scan
+        basestep = -2*direction*resolution
+        
+        
+        #move to the start position
+        self.hardware.turnMotor((179.9*direction - startangle))
+
+        print("initial movement")
+
+        lpoint = []
+        
+        #do the scan
+        while (self.hardware.Motor.angle < 180 and direction == -1) or (self.hardware.Motor.angle > -180 and direction == 1):
+            print(self.hardware.Motor.angle)
+            #get distance at current position:
+            lval = self.hardware.getDistance()
+            dist, error = self.data.analyseValues(lval)
+            angle = self.hardware.Motor.angle
+            lpoint.append(Point(dist, angle, error))
+
+            #move to next position
+            self.hardware.turnMotor(basestep, True)
+
+        print("motor angle end: ", self.hardware.Motor.angle)
+        print("max : ", (direction* -180.) )
+
+        #create a map
+        scan = Map(lpoint)
+
+        scan.mapImage.save("test/testdata.png")
+
+        #send map to GUI
+        self.sendMap(scan)
+
+        #move back to start position
+        self.hardware.turnMotor((startangle - self.hardware.Motor.angle))
         return
 
 
