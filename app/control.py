@@ -105,7 +105,7 @@ class Control(QObject):
 
         startangle = self.hardware.Motor.angle
         #to minimise movement unneccesary, decide whether move first right or left
-        direction = 1 if startangle >= 0 else 1
+        direction = 1 if startangle >= 0 else -1
 
         #basestep decides on resolution of the scan
         basestep = -2*direction*resolution
