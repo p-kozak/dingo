@@ -1,6 +1,8 @@
 from control import *
 from PyQt5.QtWidgets import *
 from time import gmtime, strftime
+
+
 class DataDisplay(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
@@ -12,18 +14,17 @@ class DataDisplay(QWidget):
 		layout.addWidget(self.scrollArea)
 
 
-
+		
 	def initialiseScrollArea(self):
 		self.scrollArea = QScrollArea()
 		self.scrollArea.setWidgetResizable(True)
 		#self.scrollArea.setMinimumSize(800,380)
-		print("dupa 5")
 		return
 
-	def addGridToScroll(self):
+	def addGridToScroll(self): 
 		gridWidget = QWidget()
-		#In this case we CANNOT set size of the gridWidget: let it resize, set only size of the scrollarea
-		#gridWidget.setMinimumSize(800,900)
+		# In this case we CANNOT set size of the gridWidget: let it resize, set only size of the scrollarea
+		# gridWidget.setMinimumSize(800,1500)
 		self.gridDataLayout = QGridLayout()
 		gridWidget.setLayout(self.gridDataLayout)
 		self.scrollArea.setWidget(gridWidget)
@@ -46,7 +47,7 @@ class DataDisplay(QWidget):
 
 	def addPointToDisplay(self,object):
 		self.addTimeBoxToDisplay()
-		self.addTypeBoxToDisplay("POINT")
+		self.addTypeBoxToDisplay("DISTANCE")
 		self.addDistanceBoxToDisplay(object.value)
 		self.addAngleBoxToDisplay(object.angle)
 		self.addErrorBoxToDisplay(object.error)
@@ -56,13 +57,14 @@ class DataDisplay(QWidget):
 		self.addTimeBoxToDisplay()
 		self.addTypeBoxToDisplay("WIDTH")
 		self.addWidthBoxToDisplay(object.value)
+		self.addWidthShortestDistanceToDisplay(object.angle)
 		self.addErrorBoxToDisplay(object.error)
 		return
 			
 	def addTimeBoxToDisplay(self):
 		boxTime = QLineEdit()
 		boxTime.setFixedHeight(30)
-		boxTime.setFixedWidth(200)
+		boxTime.setFixedWidth(140)
 		boxTime.setReadOnly(True)
 		boxTime.setText(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 		self.gridDataLayout.addWidget(boxTime, self.gridDataLayout.rowCount(), 0 )
@@ -71,7 +73,7 @@ class DataDisplay(QWidget):
 	def addTypeBoxToDisplay(self, type):
 		boxType = QLineEdit()
 		boxType.setFixedHeight(30)
-		boxType.setFixedWidth(90)
+		boxType.setFixedWidth(120)
 		boxType.setReadOnly(True)
 		boxType.setText(type)
 		self.gridDataLayout.addWidget(boxType, self.gridDataLayout.rowCount() -1 ,1)
@@ -80,18 +82,18 @@ class DataDisplay(QWidget):
 	def addDistanceBoxToDisplay(self, value):
 		boxDistance = QLineEdit()
 		boxDistance.setFixedHeight(30)
-		boxDistance.setFixedWidth(90)
+		boxDistance.setFixedWidth(150)
 		boxDistance.setReadOnly(True)
-		boxDistance.setText("DISTANCE: " + str(value))
+		boxDistance.setText("Distance: " + str(value))
 		self.gridDataLayout.addWidget(boxDistance, self.gridDataLayout.rowCount() -1 ,2)
 		return 
 
 	def addAngleBoxToDisplay(self, angle):
 		boxAngle = QLineEdit()
 		boxAngle.setFixedHeight(30)
-		boxAngle.setFixedWidth(90)
+		boxAngle.setFixedWidth(150)
 		boxAngle.setReadOnly(True)
-		boxAngle.setText("ANGLE: " + str(angle))
+		boxAngle.setText("Angle: " + str(angle))
 		self.gridDataLayout.addWidget(boxAngle, self.gridDataLayout.rowCount() -1 ,3)
 		return
 
@@ -107,11 +109,21 @@ class DataDisplay(QWidget):
 	def addWidthBoxToDisplay(self, width):
 		boxError = QLineEdit()
 		boxError.setFixedHeight(30)
-		#boxError.setFixedWidth(180)
+		boxError.setFixedWidth(150)
 		boxError.setReadOnly(True)
 		boxError.setText("Width: " + str(width))
-		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 , 2 ,1 ,2 )
+		self.gridDataLayout.addWidget(boxError, self.gridDataLayout.rowCount() -1 , 2 )
 		return
+
+	def addWidthShortestDistanceToDisplay(self, distance):
+		boxWidthDistance = QLineEdit()
+		boxWidthDistance.setFixedHeight(30)
+		boxWidthDistance.setFixedWidth(150)
+		boxWidthDistance.setReadOnly(True)
+		boxWidthDistance.setText("Shortest distance: " + str(distance))
+		self.gridDataLayout.addWidget(boxWidthDistance, self.gridDataLayout.rowCount() -1 , 3)
+		
+
 
 
 
