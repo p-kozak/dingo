@@ -77,7 +77,7 @@ class Map:
             self.xlist = halfsize + self.xlist
             self.ylist = halfsize - self.ylist
 
-            self.mapImage = QImage((2 * halfsize), (2 * halfsize), QImage.Format_RGB32)
+            self.mapImage = QImage((2 * halfsize), int(700 * halfsize / 360), QImage.Format_RGB32)
             self.mapImage.fill(Qt.white)
 
             #image drawing

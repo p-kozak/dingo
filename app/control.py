@@ -98,16 +98,20 @@ class Control(QObject):
         Does scan of a room, creates Map() and image.
         Returns Map() to Gui
         """
-        currentangle = self.hardware.Motor.angle
+        #turn of the laser pointer off if on
+        if self.hardware.Laser.value != 0:
+            self.hardware.Laser.off()
+
+        startangle = self.hardware.Motor.angle
         #to minimise movement unneccesary, decide whether move first right or left
-        direction = 1 if currentangle >= 0 else 1
+        direction = 1 if startangle >= 0 else 1
 
         #basestep decides on resolution of the scan
         basestep = -2*direction
         
         
         #move to the start position
-        self.hardware.turnMotor((179.9*direction - currentangle))
+        self.hardware.turnMotor((179.9*direction - startangle))
 
         lpoint = []
         
@@ -127,6 +131,9 @@ class Control(QObject):
 
         #send map to GUI
         self.sendMap(scan)
+
+        #move back to start position
+        self.hardware.turnMotor((startangle - self.hardware.Motor.angle))
         return
 
 
