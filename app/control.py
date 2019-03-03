@@ -16,18 +16,18 @@ class Control(QObject):
     
     def __init__(self):
         QObject.__init__(self)
-        self.prevpoint = Point()
-        self.prevprevpoint = Point()
-        self.hardware = HardwareControl()
-        self.data = DataProcessing()
+        # self.prevpoint = Point()
+        # self.prevprevpoint = Point()
+        # self.hardware = HardwareControl()
+        # self.data = DataProcessing()
 
-        self.motorTimer = QTimer(self)
-        self.basemotorstep = 1
+        # self.motorTimer = QTimer(self)
+        # self.basemotorstep = 1
 
-        self.motorbasepause = 5
-        self.motorpause = 5*self.motorbasepause
+        # self.motorbasepause = 5
+        # self.motorpause = 5*self.motorbasepause
         
-        self.motorTimer.timeout.connect(self.motorStep)
+        # self.motorTimer.timeout.connect(self.motorStep)
 
     def __del__(self):
         self.motorTimer.stop()
@@ -90,7 +90,13 @@ class Control(QObject):
         val, error = self.data.getWidth(self.prevpoint, self.prevprevpoint)
         p = Point(val, 0, error, True)
         self.sendPoint(p)
+    
         return 
+
+    def getMap(self, leftAngle, rightAngle, resolution):
+  
+        return
+
 
 
     def sendPoint(self, point):

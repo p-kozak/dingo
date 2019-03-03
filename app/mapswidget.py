@@ -48,7 +48,7 @@ class MapsDisplay(QWidget):
 		return
 
 	def addNewMapPair(self, image):
-		self.addNewImage(image.imageMap)
+		self.addNewImage(image.mapImage)
 		self.addNewButton()
 		return
 
