@@ -137,7 +137,7 @@ class DataProcessing:
 
         ob = a.value + b.value + width
         twicearea = np.sqrt(ob * (ob - 2 * a.value) * (ob - 2 * b.value) * (ob - 2 * width))
-        distance = twicearea / width
+        distance = twicearea / (2*width)
 
         #TODO add distance to the object
 
