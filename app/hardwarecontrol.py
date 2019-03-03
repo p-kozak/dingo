@@ -8,12 +8,21 @@ import time
 cfgheader = [0x42, 0x57, 0x02, 0x00]  
 cfgenter = [0x00, 0x00, 0x01, 0x02]
 cfgexit = [0x00, 0x00, 0x00, 0x02]
+
 cfgrst = [0xFF, 0xFF, 0xFF, 0xFF]
+
 cfginterval = [0x01, 0x00, 0x00, 0x07]
+
 cfgmm = [0x00, 0x00, 0x00, 0x1A]
 cfgcm = [0x00, 0x00, 0x01, 0x1A]
+
+cfgautodistmode = [0x00, 0x00, 0x00, 0x14]
+cfgfixdistmode = [0x00, 0x00, 0x01, 0x14]
+cfglongdistmode = [0x00, 0x00, 0x07, 0x11]
+
 cfgexttrigger = [0x00, 0x00, 0x00, 0x40]
 cfginttrigger = [0x00, 0x00, 0x01, 0x40]
+
 cfggetdata = [0x00, 0x00, 0x00, 0x41]  
 
 class LidarSensor:   
@@ -29,9 +38,13 @@ class LidarSensor:
 
     def configure(self):
         self.reset()
-        time.sleep(1) # wait to ensure command acknowledged
+        time.sleep(0.7) # wait to ensure command acknowledged
         self.setdistunit(distunit="mm")
-        time.sleep(0.5)   
+        time.sleep(0.3)
+        self.setdistmode(distmode="fix")
+        time.sleep(0.3)
+        self.setlongdistmode()
+        time.sleep(0.3)   
 
     def sendcmd(self, cmdbytes):
         cmdbytearray = bytearray(cmdbytes)
@@ -45,6 +58,17 @@ class LidarSensor:
         cmd = cfgheader + cfginterval
         cmd[5] = round(interval, -1) & 0xFF
         print("value: " + str(hex(cmd[5])))
+        self.sendcmd(cmd)
+
+    def setdistmode(self, distmode="auto"):
+        if distmode == "fix":
+            cmd = cfgheader + cfgfixdistmode
+        else:
+            cmd = cfgheader + cfgautodistmode
+        self.sendcmd(cmd)
+
+    def setlongdistmode(self):
+        cmd = cfgheader + cfglongdistmode
         self.sendcmd(cmd)
 
     def setdistunit(self, distunit="mm"):
