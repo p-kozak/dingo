@@ -120,6 +120,7 @@ class Control(QObject):
         
         #do the scan
         while self.hardware.Motor.angle < (direction* -180.):
+            print(self.hardware.Motor.angle)
             #get distance at current position:
             lval = self.hardware.getDistance()
             dist, error = self.data.analyseValues(lval)
@@ -134,6 +135,8 @@ class Control(QObject):
 
         #create a map
         scan = Map(lpoint)
+
+        image.save("test/testdata.png")
 
         #send map to GUI
         self.sendMap(scan)
