@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 
 
 class MapsControl(QWidget):
 	getMapSignal = pyqtSignal(int, int, int)
+	turnOffLaserSignal = pyqtSignal()
 
 	def __init__(self):
 		QWidget.__init__(self)
@@ -15,6 +16,7 @@ class MapsControl(QWidget):
 		self.addResolutionButtons()
 		self.addScanButtons()
 		self.updateDisplays()
+		self.addMapsIndicator()
 
 		
 
@@ -148,12 +150,36 @@ class MapsControl(QWidget):
 
 
 	def emitGetPartialScan(self):
+		self.turnOffLaserSignal.emit()
 		self.getMapSignal.emit(self.leftAngle, self.rightAngle, self.resolution)
+		self.indicatorStartMeasurement()
 		return
 
 	def emitGetFullScan(self):
+		self.turnOffLaserSignal.emit()
 		self.getMapSignal.emit(-180, 180, self.resolution)
+		self.indicatorStartMeasurement()
 		return
+
+	def addMapsIndicator(self):
+		self.indicator = QLineEdit("Waiting for scan")
+		self.indicator.setReadOnly(True)
+		self.indicator.setFixedHeight(60)
+		self.indicator.setAlignment(Qt.AlignCenter)
+		self.indicator.setStyleSheet("background-color: green")
+		self.gridLayout.addWidget(self.indicator,0,1)
+
+	def indicatorStartMeasurement(self):
+		self.indicator.setText("SCAN STARTED. DO NOT TOUCH")
+		self.indicator.setAlignment(Qt.AlignCenter)
+		self.indicator.setStyleSheet("background-color: red")
+
+	def indicatorFinishMeasurment(self):
+		self.indicator.setText("Scan finished")
+		self.indicator.setAlignment(Qt.AlignCenter)
+		self.indicator.setStyleSheet("background-color: green")
+
+
 
 
 
