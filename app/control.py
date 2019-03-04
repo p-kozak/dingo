@@ -141,6 +141,7 @@ class Control(QObject):
             self.hardware.turnMotor(basestep, True)
 
         #create a map
+        print("dlugosc lpoint:", len(lpoint))
         scan = Map(lpoint)
 
         scan.mapImage.save("test/testdata.png") #test

@@ -106,7 +106,7 @@ class Map:
 
             #position of the device
             pen.setColor(Qt.red)
-            pen.setWidth(20)
+            pen.setWidth(10)
             painter.setPen(pen)
             painter.drawPoint(round(halfwidth), round(halfheight))
 
