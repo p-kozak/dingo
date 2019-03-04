@@ -6,7 +6,7 @@ class SettingsWidget(QWidget):
 		QWidget.__init__(self)
 		self.initialiseLayout()
 		self.setUpUpdateButton()
-		self.setUpKeyboardButton()
+		#self.setUpKeyboardButton()
 		self.setUpExitButton()
 
 	def initialiseLayout(self):
