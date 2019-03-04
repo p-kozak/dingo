@@ -64,7 +64,7 @@ class MapsDisplay(QWidget):
 	def addNewImage(self, mapImage):
 		index = self.count
 		image = mapImage
-		image.save("test/testmap.png")
+		#image.save("test/testmap.png")
 		#scale to correct size, keep aspect ratio (=1/)
 		#image = image.scaled(700, 360, 1)
 
