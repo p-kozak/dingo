@@ -120,7 +120,7 @@ class DataDisplay(QWidget):
 		boxWidthDistance.setFixedHeight(30)
 		boxWidthDistance.setFixedWidth(150)
 		boxWidthDistance.setReadOnly(True)
-		boxWidthDistance.setText("Shortest distance: " + str(distance) + "mm")
+		boxWidthDistance.setText("Min distance: " + str(distance) + "mm")
 		self.gridDataLayout.addWidget(boxWidthDistance, self.gridDataLayout.rowCount() -1 , 3)
 		
 

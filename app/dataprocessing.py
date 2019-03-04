@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QFont, QStaticText
 from PyQt5.QtCore import Qt
 
 class Point:
@@ -86,6 +86,7 @@ class Map:
 
             #image drawing
             painter = QPainter(self.mapImage)
+            painter.setRenderHint(QPainter.Antialiasing)
             pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
@@ -93,7 +94,15 @@ class Map:
             for it in range(len(xlist_tr)-1):
                 painter.drawLine(round(xlist_tr[it]), round(ylist_tr[it]), round(xlist_tr[it+1]), round(ylist_tr[it+1]))
             
-            painter.drawLine(round(xlist_tr[-1]), round(ylist_tr[-1]), round(xlist_tr[0]), round(ylist_tr[0])) 
+            painter.drawLine(round(xlist_tr[-1]), round(ylist_tr[-1]), round(xlist_tr[0]), round(ylist_tr[0]))
+
+            #scale drawing
+            # painter.setFont(QFont("Times", 9))
+            # m1 = QStaticText("1m")
+            # m1.prepare()
+            # painter.drawStaticText(200, 200, m1)
+            painter.drawLine(50, 50, 150, 50)
+            painter.drawLine(50, 50, 50, 150)
 
             #position of the device
             pen.setColor(Qt.red)
@@ -117,6 +126,7 @@ class Map:
 
                 # print("a vector x,y: ", a_x, a_y)
                 # print("b vector x,y: ", b_x, b_y)
+
                 #magnitude of cross product, divided by 2 at the end
                 self.area = self.area + (a_x * b_y) - (a_y * b_x)
                 print("area so far: ", self.area)

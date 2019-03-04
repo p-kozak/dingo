@@ -254,5 +254,8 @@ class HardwareControl:
             self.Laser.off()
         else:
             self.Laser.on()
+            
+
+    
 
         
