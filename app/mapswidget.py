@@ -66,7 +66,7 @@ class MapsDisplay(QWidget):
 		image = mapImage
 		image.save("test/testmap.png")
 		#scale to correct size, keep aspect ratio (=1/)
-		image.scaled(700, 360, 1)
+		image = image.scaled(700, 360, 1)
 
 		label = QLabel(self)
 		pix = QPixmap()
