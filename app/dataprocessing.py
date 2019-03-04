@@ -94,7 +94,7 @@ class Map:
             for it in range(len(xlist_tr)-1):
                 painter.drawLine(round(xlist_tr[it]), round(ylist_tr[it]), round(xlist_tr[it+1]), round(ylist_tr[it+1]))
             
-            painter.drawLine(round(xlist_tr[-1]), round(ylist_tr[-1]), round(xlist_tr[0]), round(ylist_tr[0]))
+            # painter.drawLine(round(xlist_tr[-1]), round(ylist_tr[-1]), round(xlist_tr[0]), round(ylist_tr[0]))
 
             #scale drawing
             # painter.setFont(QFont("Times", 9))
