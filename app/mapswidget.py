@@ -66,9 +66,9 @@ class MapsDisplay(QWidget):
 		image = mapImage
 		image.save("test/testmap.png")
 
-		label = QLabel(self)
-		pix = QPixmap()
-		pix = pix.fromImage(image)
+		label = QLabel()
+		pix = QPixmap("test/testmap.png")
+		#pix = pix.fromImage(image)
 		pix = pix.scaled(700,360)
 		label.setPixmap(pix)
 		#self.imagesLayout.addWidget(pika)
