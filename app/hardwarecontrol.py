@@ -247,8 +247,10 @@ class HardwareControl:
         returns the distances in a list
         """
         lvalues = self.Lidar.getdata()
-        while len(lvalues) == 0:
+        it = 0 
+        while len(lvalues) == 0 and it <5:
             lvalues = self.Lidar.getdata()
+            it = it+1
         return lvalues
 
     def toggleLaser(self):

@@ -131,9 +131,11 @@ class Control(QObject):
             print("entered scan",self.hardware.Motor.angle)
             #get distance at current position:
             lval = self.hardware.getDistance()
-            dist, error = self.data.analyseValues(lval)
-            angle = self.hardware.Motor.angle
-            lpoint.append(Point(dist, angle, error))
+            #discard empty list
+            if len(lval) != 0:
+                dist, error = self.data.analyseValues(lval)
+                angle = self.hardware.Motor.angle
+                lpoint.append(Point(dist, angle, error))
             
             #move to next position
             self.hardware.turnMotor(basestep, True)

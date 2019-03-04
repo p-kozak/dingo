@@ -157,7 +157,7 @@ class DataProcessing:
         stddev = np.std(list, ddof = 1)
 
         #estimated standard error:
-        error = stddev / np.sqrt(len(list)) #+ 0.01 * result
+        error = stddev / np.sqrt(len(list)) + (0.01 * result)
         return (result, error)
 
     def getWidth(self, a, b):
