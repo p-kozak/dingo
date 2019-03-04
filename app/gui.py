@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QThread, qDebug, pyqtSignal
+from PyQt5.QtCore import QThread, qDebug, pyqtSignal, Qt
 from control import *
 from PyQt5 import QtGui
 from PyQt5.QtGui import QPalette, QImage
@@ -10,6 +10,9 @@ from datadisplay import DataDisplay
 from dataprocessing import Map, Point
 from mapscontrolwidget import MapsControl
 import os, signal
+
+
+
 
 
 
@@ -98,6 +101,7 @@ class MainWindow(QMainWindow):
 		self.addDisplaysToControlGrid()
 		self.initialiseVariablesToZero()
 		self.addMotorSpeedControls()
+		self.addWarningDisplay()
 		self.initialiseSpeedVariable()
 		#self.addSliderToControlGrid()
 
@@ -220,6 +224,13 @@ class MainWindow(QMainWindow):
 		self.boxWidth.setText("Last width: " + str(self.lastWidth) + "mm")
 		self.boxSpeed.setText("Motor speed: " + str(self.speed))
 		self.boxWidthDistance.setText("Shortest distance: " + str(self.lastWidthDistance) + "mm")
+
+		if self.lastDistance != 0 and self.lastDistance < 1000:
+			self.boxWarning.setText("WARNING. Distance under 1m. It can be inaccurate")
+			self.boxWarning.setStyleSheet("background-color: red")
+		elif self.lastDistance != 0 and self.lastDistance > 1000:
+			self.boxWarning.setText("Measurement OK")
+			self.boxWarning.setStyleSheet("background-color: green")
 		return
 
 
@@ -274,14 +285,14 @@ class MainWindow(QMainWindow):
 	def addButtonsToControlGrid(self):
 		buttonToggleLaser = QPushButton("Toggle laser")
 		#buttonToggleLaser.setStyleSheet("background-color: white")
-		buttonToggleLaser.setFixedHeight(40)
+		buttonToggleLaser.setFixedHeight(50)
 		buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
 		self.controlLayout.addWidget(buttonToggleLaser,0,0)
 
-		buttonBluetoothConnect = QPushButton("Bluetooth Connect")
-		buttonBluetoothConnect.setFixedHeight(40)
-		buttonBluetoothConnect.clicked.connect(self.buttonBluetoothConnectClicked)
-		self.controlLayout.addWidget(buttonBluetoothConnect,0,2)
+		self.buttonBluetoothConnect = QPushButton("Bluetooth Connect")
+		self.buttonBluetoothConnect.setFixedHeight(50)
+		self.buttonBluetoothConnect.clicked.connect(self.buttonBluetoothConnectClicked)
+		self.controlLayout.addWidget(self.buttonBluetoothConnect,0,2)
 
 		#Boxes for displaying last measured distance and angle. Blocked, will be updated by later functions
 		
@@ -360,15 +371,33 @@ class MainWindow(QMainWindow):
 		self.setAngleToZeroSignal.connect(self.controlThreadObject.setAngleToZero)
 		self.calculateWidthSignal.connect(self.controlThreadObject.calculateWidth)
 		self.sendSpeedSignal.connect(self.controlThreadObject.receiveSpeedValue)
+
+		#maps control -> gui
 		self.mapsControlWidget.getMapSignal.connect(self.controlThreadObject.getMap)
 
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
 		self.controlThreadObject.sendPointSignal.connect(self.receivePoint)
 
-		#control -> comms
+		#gui -> comms
 		self.connectBluetoothSignal.connect(self.commsThreadObject.main)
 
+		#comms -> gui
+
+		self.commsThreadObject.calculateWidthSignal.connect(self.buttonGetWidthPressed)
+		self.commsThreadObject.toggleLaserSignal.connect(self.buttonToggleLaserClicked)
+		self.commsThreadObject.getMapSignal.connect(self.controlThreadObject.getMap)
+		self.commsThreadObject.measureSignal.connect(self.buttonMeasureClicked)
+		self.commsThreadObject.setAngleZeroSignal.connect(self.buttonSetRelativeAngleToZeroClicked)
+		self.commsThreadObject.bluetoothReadySignal.connect(self.bluetoothConnected)
+
+
+
+
+
+		return
+	def bluetoothConnected(self):
+		self.buttonBluetoothConnect.setText("Bluetooth ready")
 		return
 
 	def buttonToggleLaserClicked(self):
@@ -432,9 +461,9 @@ class MainWindow(QMainWindow):
 		#Slot. Uses two last measurements and returns distance between these points  
 		self.calculateWidthSignal.emit()
 		# point = Point()
-		# point.value = 6
+		# point.value = 6324
 		# point.objectType = "width"
-		# point.angle = 56
+		# point.angle = 99999
 		# point.error = 43
 		# self.dataDisplayWidget.addMeasurementToDisplay(point)
 		return
@@ -512,6 +541,15 @@ class MainWindow(QMainWindow):
 		os.kill(pid, signal.SIGKILL)
 
 		return
+
+	def addWarningDisplay(self):
+		self.boxWarning = QTextEdit("Measurements under 1m are likely to be inaccurate")
+		self.boxWarning.setStyleSheet("background-color: white")
+		self.boxWarning.setAlignment(Qt.AlignCenter)
+		self.boxWarning.setReadOnly(True)
+		self.boxWarning.setFixedHeight(50)
+		self.controlLayout.addWidget(self.boxWarning, 0, 1)
+
 
 
 

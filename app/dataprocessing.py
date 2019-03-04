@@ -87,7 +87,7 @@ class Map:
             #image drawing
             painter = QPainter(self.mapImage)
             painter.setRenderHint(QPainter.Antialiasing)
-            pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            pen = QPen(Qt.blue, 10, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
             #connecting points
@@ -106,7 +106,7 @@ class Map:
 
             #position of the device
             pen.setColor(Qt.red)
-            pen.setWidth(10)
+            pen.setWidth(20)
             painter.setPen(pen)
             painter.drawPoint(round(halfwidth), round(halfheight))
 

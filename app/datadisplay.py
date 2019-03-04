@@ -93,7 +93,7 @@ class DataDisplay(QWidget):
 		boxAngle.setFixedHeight(30)
 		boxAngle.setFixedWidth(150)
 		boxAngle.setReadOnly(True)
-		boxAngle.setText("Angle: " + str(angle) + "mm")
+		boxAngle.setText("Angle: " + str(angle))
 		self.gridDataLayout.addWidget(boxAngle, self.gridDataLayout.rowCount() -1 ,3)
 		return
 
