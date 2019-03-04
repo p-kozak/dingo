@@ -78,8 +78,8 @@ class Map:
             halfwidth = round(350 * halfheight / 180)
 
             #coordinates translation, _tr = translated
-            xlist_tr = 180 + self.xlist
-            ylist_tr = 180 - self.ylist
+            xlist_tr = halfwidth + self.xlist
+            ylist_tr = halfheight - self.ylist
 
             self.mapImage = QImage((2 * halfwidth), (2 * halfheight), QImage.Format_RGB32)
             # self.mapImage = QImage(3*700, 3*360, QImage.Format_RGB32)
