@@ -78,16 +78,17 @@ class Map:
             halfwidth = round(350 * halfheight / 180)
 
             #coordinates translation, _tr = translated
-            xlist_tr = halfwidth + self.xlist
-            ylist_tr = halfheight - self.ylist
+            xlist_tr = 180 + self.xlist / halfheight
+            ylist_tr = 180 - self.ylist / halfheight
 
-            self.mapImage = QImage((2 * halfwidth), (2 * halfheight), QImage.Format_RGB32)
+            # self.mapImage = QImage((2 * halfwidth), (2 * halfheight), QImage.Format_RGB32)
+            self.mapImage = QImage(700, 360, QImage.Format_RGB32)
             self.mapImage.fill(Qt.white)
 
             #image drawing
             painter = QPainter(self.mapImage)
             painter.setRenderHint(QPainter.Antialiasing)
-            pen = QPen(Qt.blue, 10, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
+            pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
             #connecting points
@@ -106,7 +107,7 @@ class Map:
 
             #position of the device
             pen.setColor(Qt.red)
-            pen.setWidth(10)
+            pen.setWidth(9)
             painter.setPen(pen)
             painter.drawPoint(round(halfwidth), round(halfheight))
 
