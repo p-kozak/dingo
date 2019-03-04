@@ -87,7 +87,7 @@ class Map:
 
             #image drawing
             painter = QPainter(self.mapImage)
-            painter.setRenderHint(QPainter.Antialiasing)
+            # painter.setRenderHint(QPainter.Antialiasing)
             pen = QPen(Qt.blue, 5, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin)
             painter.setPen(pen)
 
