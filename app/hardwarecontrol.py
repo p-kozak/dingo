@@ -247,6 +247,8 @@ class HardwareControl:
         returns the distances in a list
         """
         lvalues = self.Lidar.getdata()
+        while len(lvalues) == 0:
+            lvalues = self.Lidar.getdata()
         return lvalues
 
     def toggleLaser(self):
@@ -254,6 +256,95 @@ class HardwareControl:
             self.Laser.off()
         else:
             self.Laser.on()
+
+    # def wallScan(direction):
+
+    #     radius = 1.2 / 0.05625
+    #     values = []
+    #     gradients = []
+    #     ttl_loc_c = 0
+    #     ttl_val_loc_c = 0
+    #     avg_loc_c = 0
+    #     X = 0
+    #     Y = 2 * radius + 7
+    #     corner_dist = 0
+    #     corner_grad = 0
+    #     ttl_loc_e = 0
+    #     ttl_val_loc_e = 0
+    #     avg_loc_e = 0
+    #     edge_dist = 0
+    #     edge_grad = 0
+    #     flat_grad = 0
+
+    # while (X < wall.width - radius) and Y > 0:
+
+    #     lidarList = []
+    #     LIDAR.x = X
+    #     #print(scan(LIDAR, wall))
+    #     lidarList.append(getDistance)
+
+    #     x = 0
+    #     y = 0
+    #     while x < length(lidarList):
+    #         y += lidarList[x]
+        
+
+    #     values.append(getDistance)
+    #     gradient = 0
+
+    #     if X > 1:
+    #         gradient = (values[X] - values[X - 1] + values[X - 1] - values[X 2]) / 2
+
+    #     gradients.append(gradient)
+
+    #     if X > 2 * radius:
+
+    #         if gradients[X] - gradients[X - 2 * radius] <= -1.5:
+    #             print("corner found at " + str(X - radius))
+    #             ttl_val_loc_c += X - radius - 1
+    #             ttl_loc_c += 1
+    #             if Y == 2 * radius + 7:
+    #                 Y -= 1
+    #                 #print(str(Y) + "in loop")
+					
+	# 	if X > 2
+
+    #         if gradients[X] - gradients[X - 1] + gradients[X - 1] - gradients[X - 2] + gradients[X - 2] - gradients[X - 3] < 0.15 and ttl_loc_e < 2:
+    #             flat_grad = gradients[X - radius]
+
+    #         if gradients[X] >= flat_grad + 1:
+    #             print("edge found at " + str(X))
+    #             ttl_val_loc_e += X - 1
+    #             ttl_loc_e += 1
+    #             if Y == 2 * radius + 7:
+    #                 Y -= 5
+
+    #         if Y < 2 * radius + 7:
+    #             Y -= 1
+    #             #print(str(Y) + "out loop")
+    #     X += direction
+    #     StepMotor.turnbystep(direction)
+
+
+    # print("gradients")
+    # for x in gradients:
+    #     print(x)
+
+    # if ttl_loc_c > ttl_loc_e:
+    #     avg_loc_c = ttl_val_loc_c / ttl_loc_c
+    #     print("corner found at " + str(avg_loc_c))
+        
+    #     corner_grad = (gradients[int(avg_loc_c) - radius - 1] + gradients[int(avg_loc_c) - radius - 2] + gradients[int(avg_loc_c) - radius - 3]) / 3
+    #     corner_dist = (corner_grad * (radius + 1)) + values[int(avg_loc_c) - radius - 1]
+    #     print("corner is " + str(corner_dist) + " away")
+
+    # else:
+    #     avg_loc_e = ttl_val_loc_e / ttl_loc_e
+    #     print("edge found at " + str(avg_loc_e))
+
+    #     edge_grad = (gradients[int(avg_loc_e) - radius - 1] + gradients[int(avg_loc_e) - radius - 2] + gradients[int(avg_loc_e) - radius - 3]) / 3
+    #     edge_dist = (edge_grad * (radius + 1)) + values[int(avg_loc_e) - radius - 1]
+    #     print("edge is " + str(edge_dist) + " away")
             
 
     
