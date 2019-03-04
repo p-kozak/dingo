@@ -41,7 +41,7 @@ class SettingsWidget(QWidget):
 		self.killSelf()
 
 	def showKeyboard(self):
-		os.system("keyboard")
+		os.system("matchbox-keyboard")
 		
 
 
