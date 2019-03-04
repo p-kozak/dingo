@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 import logging
 import logging.handlers
 import argparse
@@ -8,6 +8,14 @@ import time
 from bluetooth import *
 
 class Comms(QObject):
+	calculateWidthSignal = pyqtSignal()
+	toggleLaserSignal = pyqtSignal()
+	getMapSignal = pyqtSignal(int, int, int)
+	setAngleZeroSignal = pyqtSignal()
+	measureSignal = pyqtSignal()
+	bluetoothReadySignal = pyqtSignal()
+
+
 	def __init__(self, parent = None):
 		QObject.__init__(self)
 		self.response="msg:Press Get Data,Press Get Data"
@@ -47,7 +55,7 @@ class Comms(QObject):
 		while True:
 			i=1
 			print ("Waiting for connection on RFCOMM channel %d" % port)
-
+			#here
 			try:
 				client_sock = None
 				
@@ -63,8 +71,27 @@ class Comms(QObject):
 			   # print "Received [%s]" % data
 
 				# Handle the request
-				#if data == "getop":
-				   # response = "op:%s" % ",".join(operations)
+				if data == "width":
+				    operation = "op:operation"
+				    client_sock.send(operation)
+				    self.calculateWidthSignal.emit()
+				elif data == "laser":
+				    operation = "op:operation"
+				    client_sock.send(operation)
+				    self.toggleLaserSignal.emit()
+				elif data == "zeroangle":
+				    operation = "op:operation"
+				    client_sock.send(operation)
+				    self.setAngleZeroSignal.emit()    
+				elif data == "fullscan":
+				    operation = "op:operation"
+				    client_sock.send(operation)
+				    self.fullScanSignal.emit(-180, 180, 5)
+				elif data == "measure":
+				    operation = "op:operation"
+				    client_sock.send(operation)
+				    self.measureSignal.emit()
+
 
 
 
@@ -81,10 +108,10 @@ class Comms(QObject):
 				# Insert more here
 			   # else:
 				#	response = "msg:Not supported"
-				# else:
-				# 	self.response="msg:Press Get Data,Press Get Data"
-				client_sock.send(self.response)
-				print ("Sent [%s]" % self.response)
+				else:
+					# 	self.response="msg:Press Get Data,Press Get Data"
+					client_sock.send(self.response)
+					print ("Sent [%s]" % self.response)
 				
 
 			except IOError:
