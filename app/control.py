@@ -143,7 +143,7 @@ class Control(QObject):
         #create a map
         scan = Map(lpoint)
 
-        #scan.mapImage.save("test/testdata.png") #test
+        scan.mapImage.save("test/testdata.png") #test
 
         #send map to GUI
         self.sendMap(scan)
