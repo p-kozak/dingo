@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
 		self.defineSignals()
 
 		self.updateDisplays() #delete later
-
+		self.updateLaserColour()
 
 		self.show()
 
@@ -210,6 +210,7 @@ class MainWindow(QMainWindow):
 		self.formerAngle = 0
 		self.lastWidth = 0
 		self.lastWidthDistance = 0
+		self.laserOn = False
 		return
 
 	def initialiseSpeedVariable(self):
@@ -283,11 +284,12 @@ class MainWindow(QMainWindow):
 		return
 
 	def addButtonsToControlGrid(self):
-		buttonToggleLaser = QPushButton("Toggle laser")
+		self.buttonToggleLaser = QPushButton("Toggle laser: OFF")
 		#buttonToggleLaser.setStyleSheet("background-color: white")
-		buttonToggleLaser.setFixedHeight(50)
-		buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
-		self.controlLayout.addWidget(buttonToggleLaser,0,0)
+		self.buttonToggleLaser.setFixedHeight(50)
+		self.buttonToggleLaser.setStyleSheet("background-color: green")
+		self.buttonToggleLaser.clicked.connect(self.buttonToggleLaserClicked)
+		self.controlLayout.addWidget(self.buttonToggleLaser,0,0)
 
 		self.buttonBluetoothConnect = QPushButton("Bluetooth Connect")
 		self.buttonBluetoothConnect.setFixedHeight(50)
@@ -374,6 +376,10 @@ class MainWindow(QMainWindow):
 
 		#maps control -> gui
 		self.mapsControlWidget.getMapSignal.connect(self.controlThreadObject.getMap)
+		self.mapsControlWidget.turnOffLaserSignal.connect(self.turnOffLaser)
+
+		#maps -> maps control
+		self.imagesWidget.mapAddedSignal.connect(self.mapsControlWidget.indicatorFinishMeasurment)
 
 		#control -> gui
 		self.controlThreadObject.sendMapSignal.connect(self.receiveMap)
@@ -391,18 +397,36 @@ class MainWindow(QMainWindow):
 		self.commsThreadObject.setAngleZeroSignal.connect(self.buttonSetRelativeAngleToZeroClicked)
 		self.commsThreadObject.bluetoothReadySignal.connect(self.bluetoothConnected)
 
-
-
-
-
 		return
+
+
+
+
+	def turnOffLaser(self):
+		self.laserOn = False
+		self.updateLaserColour()
+		return
+
 	def bluetoothConnected(self):
 		self.buttonBluetoothConnect.setText("Bluetooth ready")
 		return
 
 	def buttonToggleLaserClicked(self):
+		self.laserOn = not self.laserOn
 		self.toggleLaserSignal.emit()
-		return 
+		self.updateLaserColour()
+
+		return
+
+	def updateLaserColour(self):
+		if self.laserOn is True:
+			self.buttonToggleLaser.setStyleSheet("background-color: red")
+			self.buttonToggleLaser.setText("Toggle laser: ON")
+		elif self.laserOn is not True:
+			self.buttonToggleLaser.setStyleSheet("background-color: green")
+			self.buttonToggleLaser.setText("Toggle laser: OFF")
+
+
 
 	def buttonMeasureClicked(self):
 		#A slot which handles Measure button click 

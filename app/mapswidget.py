@@ -1,9 +1,13 @@
 from PyQt5.QtWidgets import *
 from functools import partial
 from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSignal
 
 
 class MapsDisplay(QWidget):
+
+	mapAddedSignal = pyqtSignal()
+
 	def __init__(self):
 		self.count = 0
 		self.listOfImages = []
@@ -50,6 +54,7 @@ class MapsDisplay(QWidget):
 	def addNewMapPair(self, image):
 		self.addNewImage(image.mapImage)
 		self.addNewButton()
+		self.mapAddedSignal.emit()
 		return
 
 	def addNewButton(self):
