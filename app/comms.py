@@ -19,6 +19,7 @@ class Comms(QObject):
 	def __init__(self, parent = None):
 		QObject.__init__(self)
 		self.response="msg:Press Get Data,Press Get Data"
+		self.connected = False
 
 
 	def main(self):
@@ -53,6 +54,10 @@ class Comms(QObject):
 
 		# Main Bluetooth server loop
 		while True:
+			if not self.connected:
+				self.bluetoothReadySignal.emit()
+				self.connected = True
+
 			i=1
 			print ("Waiting for connection on RFCOMM channel %d" % port)
 			#here
@@ -67,8 +72,8 @@ class Comms(QObject):
 				data = client_sock.recv(1024)
 				# if len(data) == 0:
 					 #break
-
-			   # print "Received [%s]" % data
+				data=data.decode("utf-8")	 	
+				print("Received [%s]" % data)
 
 				# Handle the request
 				if data == "width":
@@ -86,7 +91,7 @@ class Comms(QObject):
 				elif data == "fullscan":
 				    operation = "op:operation"
 				    client_sock.send(operation)
-				    self.fullScanSignal.emit(-180, 180, 5)
+				    self.getMapSignal.emit(-180, 180, 5)
 				elif data == "measure":
 				    operation = "op:operation"
 				    client_sock.send(operation)
