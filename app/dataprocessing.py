@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor, QImage
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage
 from PyQt5.QtCore import Qt
 
 class Point:
@@ -23,9 +23,9 @@ class Point:
         """
         radangle = np.deg2rad(self.angle)
         x = self.value * np.sin(radangle)
-        print("x: ",x)
+        #print("x: ",x)
         y = self.value * np.cos(radangle)
-        print("y: ",y)
+        #print("y: ",y)
         return (x, y)
 
 class Map:
@@ -35,9 +35,12 @@ class Map:
     def __init__(self, listofpoints = []):
         self.objectType = "map"
         self.pointlist = listofpoints
+
         self.xlist = []
         self.ylist = []
+
         self.mapImage = QImage()
+        self.area = 0
         
         if len(self.pointlist) != 0:
             self.createMap(self.pointlist)
@@ -57,7 +60,7 @@ class Map:
             self.ylist.append(ytemp)
         return (self.xlist, self.ylist)
 
-    def getQImage(self): #TODO incorporate the scaling
+    def getQImage(self):
         """
         Creates Qimage of the map.
         Returns scaled QImage of the map
@@ -71,13 +74,14 @@ class Map:
             maxy = abs(max(self.ylist))
 
             frame = 10
-            halfsize = round(max(minx, maxx, miny, maxy)) + frame
+            halfheight = round(max(minx, maxx, miny, maxy)) + frame
+            halfwidth = round(350 * halfheight / 180)
 
-            #coordinates translation
-            self.xlist = halfsize + self.xlist
-            self.ylist = halfsize - self.ylist
+            #coordinates translation, _tr = translated
+            xlist_tr = halfwidth + self.xlist
+            ylist_tr = halfheight - self.ylist
 
-            self.mapImage = QImage(int(700 * 2* halfsize / 360), (2 * halfsize), QImage.Format_RGB32)
+            self.mapImage = QImage((2 * halfwidth), (2 * halfheight), QImage.Format_RGB32)
             self.mapImage.fill(Qt.white)
 
             #image drawing
@@ -86,20 +90,40 @@ class Map:
             painter.setPen(pen)
 
             #connecting points
-            for it in range(len(self.xlist)-1):
-                painter.drawLine(round(self.xlist[it]), round(self.ylist[it]), round(self.xlist[it+1]), round(self.ylist[it+1]))
+            for it in range(len(xlist_tr)-1):
+                painter.drawLine(round(xlist_tr[it]), round(ylist_tr[it]), round(xlist_tr[it+1]), round(ylist_tr[it+1]))
             
-            painter.drawLine(round(self.xlist[-1]), round(self.ylist[-1]), round(self.xlist[0]), round(self.ylist[0])) 
+            painter.drawLine(round(xlist_tr[-1]), round(ylist_tr[-1]), round(xlist_tr[0]), round(ylist_tr[0])) 
 
             #position of the device
             pen.setColor(Qt.red)
-            pen.setWidth(5)
+            pen.setWidth(10)
             painter.setPen(pen)
-            painter.drawPoint(round(halfsize), round(halfsize))
+            painter.drawPoint(round(halfwidth), round(halfheight))
 
-            #calculation of area
+            #calculation of area, sum of triangles, first point is the origin #TODO check if works
+            self.area = 0
 
-        return self.mapImage
+            #print("orign: ", self.xlist[0], self.ylist[0])
+            for ite in range(1, len(self.xlist)-1):
+                #vectors of triangle
+                #print("first point: ", self.xlist[ite], self.ylist[ite])
+                a_x = self.xlist[ite] - self.xlist[0]
+                a_y = self.ylist[ite] - self.ylist[0]
+
+                #print("second point: ", self.xlist[ite+1], self.ylist[ite+1])
+                b_x = self.xlist[ite+1] - self.xlist[0]
+                b_y = self.ylist[ite+1] - self.ylist[0]
+
+                # print("a vector x,y: ", a_x, a_y)
+                # print("b vector x,y: ", b_x, b_y)
+                #magnitude of cross product, divided by 2 at the end
+                self.area = self.area + (a_x * b_y) - (a_y * b_x)
+                print("area so far: ", self.area)
+
+            self.area = abs(self.area / 2.)
+
+        return self.mapImage, self.area
 
 
 class DataProcessing:
@@ -107,7 +131,8 @@ class DataProcessing:
     One instance class to handle data processing such as calculating errors,
     average, distance, create a map
     """
-    error_motor_angle = 0.045 #TODO verify the value
+    #constants:
+    error_motor_angle = 0.045 #TODO verify the value, if changed - change in hardwarecontrol
     def __init__(self):
         pass
     
@@ -116,11 +141,13 @@ class DataProcessing:
         Averages the values and calculates the standard error of the list.
         return average_value, standard_error
         """
+        #average of measurements
         result = sum(list) / len(list)
         #corrected sample standard deviation, degrees of freedom = 1
         stddev = np.std(list, ddof = 1)
+
         #estimated standard error:
-        error = stddev / np.sqrt(len(list)) #TODO divide by sqrt of len(list)
+        error = stddev / np.sqrt(len(list)) #+ 0.01 * result
         return (result, error)
 
     def getWidth(self, a, b):
@@ -129,26 +156,24 @@ class DataProcessing:
         It also calculates the distance to the line made by those 2 points.
         return width, error, distance
         """
-        angle = abs(a.angle - b.angle)
-        costerm = 2 * a.value * b.value * np.cos(np.deg2rad(angle))
+        angle = np.deg2rad(abs(a.angle - b.angle))
+        costerm = 2 * a.value * b.value * np.cos(angle)
         print("costerm", costerm)
-        width = np.sqrt(a.value**2 + b.value**2 - costerm) # a^2 + b^2 - 2*a*b*cos(angle<ab>)
+        sqwidth = a.value**2 + b.value**2 - costerm # a^2 + b^2 - 2*a*b*cos(angle<ab>)
+        width = np.sqrt(sqwidth)
         
-
+        #calculating perpendicular distance to the object
         ob = a.value + b.value + width
         twicearea = np.sqrt(ob * (ob - 2 * a.value) * (ob - 2 * b.value) * (ob - 2 * width))
         distance = twicearea / (2*width)
 
-        #TODO add distance to the object
-
-        #error propagation TODO: make it work
-        asqerror = 2. * a.error  / a.value
-        print("asqerror:", asqerror)
-        bsqerror = 2. * b.error / b.value
-        print("bsqerror:", bsqerror)
-        costermerror_squared =  a.error/a.value + b.error / b.value + np.sqrt(2.) * self.error_motor_angle * np.tan(np.deg2rad(angle))
-        print("cos term error", costermerror_squared)
-        werror = (asqerror * a.value)**2 + (bsqerror * b.value)**2 #+ (costermerror_squared*(costerm**2))
+        #error propagation for width
+        sqerror = (a.value**2) * (b.value**2) * (self.error_motor_angle**2) * (np.sin(angle)**2)\
+                        + (a.error**2) * ((a.value - b.value * np.cos(angle))**2)\
+                        + (b.error**2) * ((b.value - a.value * np.cos(angle))**2)
+        werror = np.sqrt(sqerror/sqwidth)
+                        
+        
         return (width, werror, distance)
 
 

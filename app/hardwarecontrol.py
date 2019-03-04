@@ -33,7 +33,7 @@ class LidarSensor:
                    stopbits=serial.STOPBITS_ONE,
                    bytesize=serial.EIGHTBITS)
 
-        self.resultsmax = 5 # number of measurements per data packet
+        self.resultsmax = 20 # number of measurements per data packet
         self.offset = -40 # calibration offset
 
     def configure(self):
@@ -114,7 +114,7 @@ class LidarSensor:
             
         return dists
 
-    def calibrate(self, actualdist):
+    def calibrate(self, actualdist): #TODO add calibration to application
         measureddists = self.getdata()
         self.offset = actualdist - sum(measureddists)/len(measureddists)
 
@@ -124,9 +124,11 @@ class StepMotor:
     """
     One instance class to control motor via gpio 
     """
+    #constants shared between instances of class
     WAIT_TIME = .001
     STEP_DEGREE = 0.05625 #uncertainty is ~0.045
     BIG_STEP_DEGREE = 0.9
+
     def __init__(self, currentangle=0):
         """
         Motor Setup.
@@ -134,7 +136,7 @@ class StepMotor:
         MODE1 = 1, MODE2 = 1 => microstep
         MODE1 = 0, MODE2 = 0 => normalstep
         """
-        #TODO comment out next line if working on Raspberry Pi !!!!!!!!
+        #Comment out next line if working on Raspberry Pi !!!
         #Device.pin_factory = MockFactory() 
         self.vcc = DigitalOutputDevice(26) #pin BOARD37, VCC = 0
         time.sleep(self.WAIT_TIME) #wait 1 ms
@@ -150,7 +152,7 @@ class StepMotor:
         self.direction = -1. #1 for right turn, -1 for left turn.
         self.stepmicro = True #True for micro step, False for normal step
 
-    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): #TODO make it turn backwards if stepnum <0, make 2 speeds 
+    def turnbyStep(self, stepnum=5, steptime=WAIT_TIME, stepsize=0): 
         """
         Move by specified amount of steps, 1 step is 0.05625 degrees
         1 step is 1 full clock, min high time is 1 ms.
@@ -159,9 +161,11 @@ class StepMotor:
         if stepsize == 0 and self.stepmicro == False: #set the microstep
             self.mode1.on()
             self.mode2.on()
+            self.stepmicro = True
         if stepsize != 0 and self.stepmicro == True: #set the normal step
             self.mode1.off()
             self.mode2.off()
+            self.stepmicro = False
 
 
         if stepnum >= 0 and self.direction == -1:
@@ -205,17 +209,18 @@ class HardwareControl:
     
     def __init__(self):
         """
-        Setup Motor and TODO Lidar
+        Setups Motor and Lidar
         """
         self.Motor = StepMotor()
+        
 
         self.Lidar = LidarSensor()
         self.Lidar.configure()
 
         self.Laser = DigitalOutputDevice(21) #BOARD40
-        #self.motorangle = self.Motor.angle
+        
 
-    def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1): #TODO add speed of turning
+    def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1):
         """
         Steptime is in miliseconds.
         Turns motor and returns the new angle of the motor.
