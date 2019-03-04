@@ -27,9 +27,9 @@ class Control(QObject):
         self.motorbasepause = 5
         self.motorpause = 5*self.motorbasepause
         
-        self.motorTimer.timeout.connect(self.motorStep
+        self.motorTimer.timeout.connect(self.motorStep)
 
-    def __del__(self):
+    def  __del__(self):
         self.motorTimer.stop()
     
     def motorStep(self):
