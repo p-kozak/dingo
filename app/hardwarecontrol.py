@@ -218,6 +218,10 @@ class HardwareControl:
         self.Lidar.configure()
 
         self.Laser = DigitalOutputDevice(21) #BOARD40
+
+    def __del__(self):
+        if self.Laser.value != 0:
+            self.Laser.off()
         
 
     def turnMotor(self, degrees, stepInsteadofDeg = False, steptime=1):

@@ -109,7 +109,8 @@ class Map:
             pen.setColor(Qt.red)
             pen.setWidth(9)
             painter.setPen(pen)
-            painter.drawPoint(round(halfwidth), round(halfheight))
+            # painter.drawPoint(round(halfwidth), round(halfheight))
+            painter.drawPoint(350, 180)
 
             #calculation of area, sum of triangles, first point is the origin #TODO check if works
             self.area = 0
