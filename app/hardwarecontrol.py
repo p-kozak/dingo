@@ -1,3 +1,4 @@
+#hardwarecontrol.py
 from gpiozero.pins.mock import MockFactory
 from gpiozero import Device, DigitalOutputDevice
 import serial
@@ -212,8 +213,6 @@ class HardwareControl:
         Setups Motor and Lidar
         """
         self.Motor = StepMotor()
-        
-
         self.Lidar = LidarSensor()
         self.Lidar.configure()
 

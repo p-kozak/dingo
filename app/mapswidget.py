@@ -1,3 +1,4 @@
+#mapswidget.py
 from PyQt5.QtWidgets import *
 from functools import partial
 from PyQt5.QtGui import *

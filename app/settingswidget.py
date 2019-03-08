@@ -1,3 +1,4 @@
+#settingswidget.py
 from PyQt5.QtWidgets import *
 import os, signal
 

@@ -1,3 +1,4 @@
+#testmotor.py
 from hardwarecontrol import HardwareControl
 
 hardware = HardwareControl()

@@ -1,3 +1,4 @@
+#gui.py
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, qDebug, pyqtSignal, Qt
 from control import *

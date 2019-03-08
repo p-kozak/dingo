@@ -1,3 +1,4 @@
+#control.py
 from PyQt5.QtCore import QObject, qDebug, pyqtSignal, QTimer
 from hardwarecontrol import HardwareControl
 from dataprocessing import Point, Map, DataProcessing

@@ -1,3 +1,4 @@
+#comms.py
 from PyQt5.QtCore import QObject, pyqtSignal
 import logging
 import logging.handlers

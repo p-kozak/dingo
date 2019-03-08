@@ -1,3 +1,4 @@
+#dataprocessing.py
 import numpy as np
 from PyQt5.QtGui import QPainter, QPen, QColor, QImage
 from PyQt5.QtCore import Qt
@@ -81,7 +82,7 @@ class Map:
             xlist_tr = halfwidth + self.xlist
             ylist_tr = halfheight - self.ylist
 
-            self.mapImage = QImage((2 * halfwidth), (2 * halfheight), QImage.Format_RGB32)
+            self.mapImage = QImage((2 * halfwidth), (2 * halfheight),  .Format_RGB32)
             # self.mapImage = QImage(3*700, 3*360, QImage.Format_RGB32)
             self.mapImage.fill(Qt.white)
 

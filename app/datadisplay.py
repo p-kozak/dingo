@@ -1,3 +1,4 @@
+#datadisplay.py
 from control import *
 from PyQt5.QtWidgets import *
 from time import gmtime, strftime
